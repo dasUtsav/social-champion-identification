@@ -4,11 +4,22 @@ Identifying a social champion using the concepts of natural language processing
 
 ### Requirements
 
-We would recommend to download [Anaconda Installer](https://www.anaconda.com/download)  since it comes with most of the packages that we will be needing
+* Python 3.5 or above
+* pip3
+* virtualenv (pip3 install virtualenv)
+* pipenv (pip3 install pipenv)
 
-### Installation
+### Dependency Installation
 
 ```sh
-$ pip install -r requirements.txt
+$ pipenv install
 ```
+
+### Starting the environment
+
+```sh
+$ pipenv shell
+```
+
+Now, you can execute all python based files with resolved dependencies
   

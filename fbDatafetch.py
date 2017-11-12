@@ -6,7 +6,7 @@ from classes.Post import Post
 class DataFetch_fb:
     
     def __init__(self, access_token, usernames):
-        self.graph = facebook.GraphAPI(access_token=access_token, version="2.1")
+        self.graph = facebook.GraphAPI(access_token=access_token, version="2.6")
         self.usernames = usernames
     
     def findInListDict(self, list, dictKey, value):
@@ -34,13 +34,60 @@ class DataFetch_fb:
         return pageDict
 
 
-access_token = "EAABZBfg9w4HgBAC58ta4cbc0ZBZA5HNmF6RPmu4IOjdnlnXz376iWUZCnIhXK9k5qmYOwjH5EeaTACmnRvGEGt97eKOVlZAkcFAIk4NIy729sagoVpt1Gr8qpkUXplEyj7ROt1wWTHrdNvRRUNg2Cyr5poFwZB7QjZAK1L8I2ACqefrLw4mHTbzZBJVHzCG9ZAqZBviQL8AjVanQZDZD"
+access_token = "EAACEdEose0cBAPZCEA4jZBgxMnoqoMzEqT8714tC2VQVBwF9l4TLfJCnFSHwwjESVwoEhYqppaSYZCJHs2VwQyZAC8OtE23f7dKlLQZCpK0hpV27uRjRytCwF7oZCge4qVZBX9YEM6YattTzLeAGNrllil8iZAKmxCo32vZBqIVwvLZC3GRCUF4YrI9Ef5PFT785oZD"
 
 # Profile usernames
 usernames = ['RUR.AreYouReducingReusingRecycling', 'EARTHOHOLICS']
 
 fetchDb = DataFetch_fb(access_token, usernames)
 
-print(fetchDb.fetchPosts())
-        
+result = fetchDb.fetchPosts()
 
+totalLikes = count = avg = 0
+likes = []
+
+rankPageLikes = []
+rankPostLikes = []
+
+for page in result:
+    #totalLikes = page['page_likes']
+    for data in page['data']:
+        likes.append(data.likes)
+        totalLikes = sum(likes)
+    avg = totalLikes/len(page['data'])
+    rankPageLikes.append({'name': page['name'], 'likes': page['page_likes']})
+    rankPostLikes.append({'name': page['name'], 'likes': avg})
+    # print("Username: ", page['name'], "Score: ", int(score))
+
+rankPageLikes = sorted(rankPageLikes, key=lambda page : page['likes'], reverse=True)
+rankPostLikes = sorted(rankPostLikes, key=lambda page : page['likes'], reverse=True)
+#print(rankPostLikes)
+
+rankList = []
+arrayLen = len(rankPageLikes)
+
+for i in range(0, arrayLen):
+    rankPageLikes[i]['rank'] = rankPostLikes[i]['rank'] = arrayLen - i - 1
+
+def getFromDict(list, key, value):
+    for item in list:
+        if(item[key] == value):
+            return item
+    return {}
+
+for username in usernames:
+    page = getFromDict(rankPageLikes, 'name', username)
+    post = getFromDict(rankPostLikes, 'name', username)
+    finalScore = (0.6 * post['rank'] + 0.4 * page['rank'])/arrayLen * 100
+    rankList.append({"name":username, 'finalScore': finalScore})
+
+print(rankList)
+
+
+
+# for page in result:
+#     print(len(page['data']))
+#     for data in page['data']:
+#         if(data.message):
+#             page['data'].remove(data)
+#     print("After", len(page['data']))

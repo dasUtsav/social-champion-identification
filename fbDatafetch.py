@@ -6,7 +6,7 @@ from classes.Post import Post
 class DataFetch_fb:
     
     def __init__(self, access_token, usernames):
-        self.graph = facebook.GraphAPI(access_token=access_token, version="2.1")
+        self.graph = facebook.GraphAPI(access_token=access_token, version="2.6")
         self.usernames = usernames
     
     def findInListDict(self, list, dictKey, value):
@@ -34,13 +34,21 @@ class DataFetch_fb:
         return pageDict
 
 
-access_token = "EAABZBfg9w4HgBAC58ta4cbc0ZBZA5HNmF6RPmu4IOjdnlnXz376iWUZCnIhXK9k5qmYOwjH5EeaTACmnRvGEGt97eKOVlZAkcFAIk4NIy729sagoVpt1Gr8qpkUXplEyj7ROt1wWTHrdNvRRUNg2Cyr5poFwZB7QjZAK1L8I2ACqefrLw4mHTbzZBJVHzCG9ZAqZBviQL8AjVanQZDZD"
+access_token = "EAACEdEose0cBAPNRLjZBXVdIKianlDHXiZCMqW2pZBXoqs78azfF4SG1WGkP9xb0gzvV4r6vCMFHjZBMKXo8T5DHjV9sAiuadZAB7VrVeDyXAweiquJHVR1Wz5Xi81PZALLVEt8zMd4PkBv0EVg9hAc91Y4gmiaXVSK63oREHf7yCa7EiAHxTeuXXhVH7NLTdUKRNKcRCZBZCgZDZD"
 
 # Profile usernames
 usernames = ['RUR.AreYouReducingReusingRecycling', 'EARTHOHOLICS']
 
 fetchDb = DataFetch_fb(access_token, usernames)
 
-print(fetchDb.fetchPosts())
+result = fetchDb.fetchPosts()
+
+for page in result:
+    for data in page['data']:
+        if(data.message):
+            page['data'].remove(data)
+    print("After", len(page['data']))
+    
+
         
 

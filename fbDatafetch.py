@@ -34,7 +34,7 @@ class DataFetch_fb:
         return pageDict
 
 
-access_token = "EAACEdEose0cBAPqg29CGcba5ajz6IRbG1ZBhs477dhefU2KwDoRx3w22GgrMZBuZCIi067lj1NwXaSahFpzJ8DnLDZANFPW8cLvXfnlTZC8ZB4GphhZCTpQZC2m93Rv2Y4Xsb1CfW0G7MhdCDu8HPJsJpjmDoSqNW4TXGuqZBf1F7s0pQnWIxMSgnNF9qUz0ZBtBQlrLohqfMvzwZDZD"
+access_token = "EAACEdEose0cBANWz94zTj1EpkYX60BaXfT9unkiUZCEkEVXlTRjNrw1m6ce7yqv2R6G7vjeWKc0A1ZBKocMMi8WqMkf2J4XNQhd0Jwuklsrih2VtlE9iTn9VW7K2or3HZA6C1wb9xftQaoznnkdN7qEsCPFKZCA2hbMfrTMZC7risaKbc4LIHs8gVqZBIXLRZCUvYdYUOHmKgZDZD"
 
 # Profile usernames
 usernames = ['RUR.AreYouReducingReusingRecycling', 'EARTHOHOLICS']
@@ -44,14 +44,17 @@ fetchDb = DataFetch_fb(access_token, usernames)
 result = fetchDb.fetchPosts()
 
 totalLikes = count = avg = 0
+likes = []
 
 for page in result:
-    totalLikes = page['page_likes']
+    #totalLikes = page['page_likes']
     for data in page['data']:
         count += 1
+        likes.append(data.likes)
+        totalLikes = sum(likes)
     avg = totalLikes/count
-    rank = (((avg - 0) * 10) / 1000) + 0
-    print("Username: ", page['name'], "Rank: ", int(rank))
+    score = (((avg - 0) * 10) / 100) + 0
+    print("Username: ", page['name'], "Score: ", int(score))
 
 # for page in result:
 #     print(len(page['data']))

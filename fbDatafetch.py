@@ -34,7 +34,7 @@ class DataFetch_fb:
         return pageDict
 
 
-access_token = "EAACEdEose0cBAPNRLjZBXVdIKianlDHXiZCMqW2pZBXoqs78azfF4SG1WGkP9xb0gzvV4r6vCMFHjZBMKXo8T5DHjV9sAiuadZAB7VrVeDyXAweiquJHVR1Wz5Xi81PZALLVEt8zMd4PkBv0EVg9hAc91Y4gmiaXVSK63oREHf7yCa7EiAHxTeuXXhVH7NLTdUKRNKcRCZBZCgZDZD"
+access_token = "EAACEdEose0cBAPqg29CGcba5ajz6IRbG1ZBhs477dhefU2KwDoRx3w22GgrMZBuZCIi067lj1NwXaSahFpzJ8DnLDZANFPW8cLvXfnlTZC8ZB4GphhZCTpQZC2m93Rv2Y4Xsb1CfW0G7MhdCDu8HPJsJpjmDoSqNW4TXGuqZBf1F7s0pQnWIxMSgnNF9qUz0ZBtBQlrLohqfMvzwZDZD"
 
 # Profile usernames
 usernames = ['RUR.AreYouReducingReusingRecycling', 'EARTHOHOLICS']
@@ -43,12 +43,19 @@ fetchDb = DataFetch_fb(access_token, usernames)
 
 result = fetchDb.fetchPosts()
 
+totalLikes = count = avg = 0
+
 for page in result:
+    totalLikes = page['page_likes']
     for data in page['data']:
-        if(data.message):
-            page['data'].remove(data)
-    print("After", len(page['data']))
-    
+        count += 1
+    avg = totalLikes/count
+    score = (((avg - 0) * 10) / 1000) + 0
+    print(int(score))
 
-        
-
+# for page in result:
+#     print(len(page['data']))
+#     for data in page['data']:
+#         if(data.message):
+#             page['data'].remove(data)
+#     print("After", len(page['data']))

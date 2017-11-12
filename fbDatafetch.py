@@ -50,8 +50,8 @@ for page in result:
     for data in page['data']:
         count += 1
     avg = totalLikes/count
-    score = (((avg - 0) * 10) / 1000) + 0
-    print(int(score))
+    rank = (((avg - 0) * 10) / 1000) + 0
+    print("Username: ", page['name'], "Rank: ", int(rank))
 
 # for page in result:
 #     print(len(page['data']))

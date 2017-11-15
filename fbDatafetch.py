@@ -19,7 +19,7 @@ class DataFetch_fb:
             pageDict.append({'name': username, 'data': []}) 
             pageDict = sorted(pageDict, key=lambda page: page['name'].lower())
 
-        getPageLikes = self.graph.get_objects(ids=usernames, fields='feed{likes.summary(true), message}, fan_count')
+        getPageLikes = self.graph.get_objects(ids=self.usernames, fields='feed{likes.summary(true), message}, fan_count')
 
         for username in getPageLikes:
             item = self.findInListDict(pageDict, 'name', username)
@@ -31,11 +31,3 @@ class DataFetch_fb:
                 item['data'].append(Post(data['id'], message, data['likes']['summary']['total_count']))
 
         return pageDict
-
-
-# for page in result:
-#     print(len(page['data']))
-#     for data in page['data']:
-#         if(data.message):
-#             page['data'].remove(data)
-#     print("After", len(page['data']))

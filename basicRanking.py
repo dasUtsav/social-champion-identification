@@ -2,9 +2,9 @@ import facebook
 
 from classes.Post import Post
 
-from classes.DataFetch_fb import DataFetch_fb
+from fbDatafetch import DataFetch_fb
 
-access_token = "EAACEdEose0cBAPZCEA4jZBgxMnoqoMzEqT8714tC2VQVBwF9l4TLfJCnFSHwwjESVwoEhYqppaSYZCJHs2VwQyZAC8OtE23f7dKlLQZCpK0hpV27uRjRytCwF7oZCge4qVZBX9YEM6YattTzLeAGNrllil8iZAKmxCo32vZBqIVwvLZC3GRCUF4YrI9Ef5PFT785oZD"
+access_token = "EAACEdEose0cBAJ1UzpICRKoKk1TREE5bqjFHWZB4X6C8zLBZBvf58skaasUHm4EjZBuPVZBbjPfjtd1TH15o3FZAWZBVaKDnL0R4UUJehv3vWZC9LbmyVCtDWxxxnfhyta9BhZBZByZAsB0AVvPyMunedYpTV17HrAoC03wcPJXiFdnnWeoZAobZAA2vIaQmzken6oUZD"
 
 # Profile usernames
 usernames = ['RUR.AreYouReducingReusingRecycling', 'EARTHOHOLICS']
@@ -21,9 +21,8 @@ rankPostLikes = []
 
 for page in result:
     #totalLikes = page['page_likes']
-    for data in page['data']:
-        likes.append(data.likes)
-        totalLikes = sum(likes)
+    likes = [data.likes for data in page['data']]
+    totalLikes = sum(likes)
     avg = totalLikes/len(page['data'])
     rankPageLikes.append({'name': page['name'], 'likes': page['page_likes']})
     rankPostLikes.append({'name': page['name'], 'likes': avg})

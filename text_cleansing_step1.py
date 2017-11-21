@@ -1,5 +1,7 @@
 import re
 import json
+import nltk
+from nltk.stem import WordNetLemmatizer
 
 class text_retrieve:
     noise_list =  ['is','the','am','a','to','us','on','I','and','by','etc.','all','&','an','all.','A','have','has','had','in','most','of','your','.',',','are']
@@ -11,7 +13,7 @@ class text_retrieve:
     def noise_removal(self):
         
         for d in self.data:
-            for d1 in d['data']:# itering through the list of dictionary
+            for d1 in d['data']:# iterating through the list of dictionary
                 d1 = d1.__dict__
                 words = d1['message'].split()
                 noise_free_Wordlist = [word for word in words if word not in self.noise_list]
@@ -35,6 +37,18 @@ class text_retrieve:
         hash_tag = self.flatten2DArray(hash_tag)
         callouts = self.flatten2DArray(callouts)
         return callouts, hash_tag
+
+    def lemmatize(self):
+        lemmatizer = WordNetLemmatizer()
+        lemmatized = []
+        for d in self.data:
+            for d1 in d['data']:
+                d1 = d1.__dict__
+                message_tokens = nltk.word_tokenize(d1['message'])
+                lemmatized.append(lemmatizer.lemmatize(w) for w in message_tokens)
+        lemmatized = self.flatten2DArray(lemmatized)
+        return lemmatized
+
 
 
     

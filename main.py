@@ -5,7 +5,7 @@ from fbDatafetch import DataFetch_fb
 from basicRanking import BasicRanking
 from text_cleansing_step1 import text_retrieve
 
-access_token = "EAACEdEose0cBAJ1UzpICRKoKk1TREE5bqjFHWZB4X6C8zLBZBvf58skaasUHm4EjZBuPVZBbjPfjtd1TH15o3FZAWZBVaKDnL0R4UUJehv3vWZC9LbmyVCtDWxxxnfhyta9BhZBZByZAsB0AVvPyMunedYpTV17HrAoC03wcPJXiFdnnWeoZAobZAA2vIaQmzken6oUZD"
+access_token = "EAACEdEose0cBALnRPZBeUZBEgpxA22X2pxnbV5dXJ17ZBdSRsA8PgCNP33FIr60yNHaWoeGQrNBJg8lBIZCslstMS6EVm1CqtbMcG9huUOrFdkYUoidyEZCHRtAJK8d5vyL4rARg4cX5zPdZAseZBFa9fdmIslB9ZBDdBABzVQlaaygOMh8jWzWRMsJnvMjB280ZD"
 
 # Profile usernames
 usernames = ['RUR.AreYouReducingReusingRecycling', 'EARTHOHOLICS']
@@ -23,6 +23,7 @@ textAndNoise.noise_removal()
 
 # Fetch callouts and hastags from result
 callouts, hash_tag = textAndNoise.cal_hashTag_callout()
+print(hash_tag)
 
 # Instantiate BasicRanking object
 ranking = BasicRanking(result, usernames)

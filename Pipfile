@@ -9,6 +9,7 @@ name = "pypi"
 
 facebook-sdk = "*"
 nltk = "*"
+tweepy = "*"
 
 
 [dev-packages]

@@ -1,0 +1,25 @@
+Datafetch -- low priority
+
+1. Access individual accounts
+2. Fetch comments and other data like dob, date of joining --todo
+3. Consider other social media like twitter, patreon
+4. Fetch and scrape the blog links provided in the post.
+5. Flask integration --todo
+
+Preprocessing
+
+1. Feature extraction based on tokenization of words
+2. Lexicon normalization --todo
+3. Object standardization
+4. Store in db --todo
+
+Analysis
+
+1. Further classify text based on topics based on social work --todo
+2. Give a score based on more data like comments, dob, social media doj
+3. Better scoring algorithm --todo
+4. Sentement analysis
+
+Output
+
+1. Percentile generation and ranking --todo

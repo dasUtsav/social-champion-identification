@@ -3,7 +3,7 @@ import json
 import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize, RegexpTokenizer, TweetTokenizer
 
 class text_retrieve:
     #noise_list =  ['is','the','am','a','to','us','on','I','and','by','etc.','all','&','an','all.','A','have','has','had','in','most','of','your','.',',','are']
@@ -15,11 +15,15 @@ class text_retrieve:
     ##################Step one for data cleansing ###################
     def noise_removal(self):
         tokenized_words = []
+        urlPattern = ""
+        tokenizer = RegexpTokenizer(r'#\w+|^@\w+|\w+\'\w+|https.+|\w+')
+        tweetTokenizer = TweetTokenizer(reduce_len=True)
         for d in self.data:
             for d1 in d['data']:# iterating through the list of dictionary
                 d1 = d1.__dict__
-                words = nltk.word_tokenize(d1['message'].lower())
-                noise_free_Wordlist = [word for word in words if word not in self.en_stop]
+                words = tweetTokenizer.tokenize(d1['message'].lower())            
+                noise_free_Wordlist = [word for word in words if word not in self.en_stop
+                                        or not re.search(r"^[^\w]$", "12sdad")]
                 tokenized_words.append(noise_free_Wordlist)
         return tokenized_words
 
@@ -33,8 +37,8 @@ class text_retrieve:
         callouts=[]
         noiseless_words = self.noise_removal()
         for words in noiseless_words:
-            hash_tag.append([words[index+1] for index, w in enumerate(words) if w == "#"])
-            callouts.append([words[index+1] for index, w in enumerate(words) if w == "@"])
+            hash_tag.append([w.group(0) for word in words for w in re.finditer(r"#\w+", word)])
+            callouts.append([word for word in words if re.search(r"^@[a-zA-Z0-9]+", word)])
         hash_tag = self.flatten2DArray(hash_tag)
         callouts = self.flatten2DArray(callouts)
         return callouts, hash_tag

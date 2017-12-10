@@ -6,7 +6,7 @@ from fbDatafetch import DataFetch_fb
 from basicRanking import BasicRanking
 from text_cleansing_step1 import text_retrieve
 
-access_token = "EAACEdEose0cBAKAFsX2NbZBIVnxOdq4zZAuX8uhtRqNpvGqD4LOQrTAFZBVvxaXU3drtxk57Ynj7EzvJqOZBgmsd0PvxCNpxMcUGLye4JzpsDjOa97B1Yiytz0AQ5OjDdUhOoKrfNZBWg2OOM19lmSZBuOWQxONibP9YZBpdC4oMKPUZCyqAqwNH3x2Giy1ZCowZC4xGabxto4EgZDZD"
+access_token = "EAACEdEose0cBANyudWHRo9CDeLMsW4KnFWAcVsoe35G16DGOa7asUoghIUISCSj5jDLfZAFhXYmHXpAUVpLc21SOptl5ZB6S6QDRAnsNZACfRA6YSbkSfF1YLlEUZA9AJsm0gluAfKbaBkI9d8HB1M1OhspAlfzAGZAKwG7BKN7fxQOjmA1yDzMXwpG3eFseSC5Ix1Ec8KQZDZD"
 
 # Profile usernames
 usernames = ['RUR.AreYouReducingReusingRecycling', 'EARTHOHOLICS']
@@ -24,11 +24,12 @@ noiseless = textAndNoise.noise_removal()
 
 # Fetch callouts and hastags from result
 callouts, hash_tag = textAndNoise.cal_hashTag_callout()
-print(callouts)
+print("Hashtags")
+print(hash_tag)
 
 # # Lemmatize the messages
-lemmatized = textAndNoise.lemmatize()
-print(lemmatized[:20]) # to see the lemmatized text
+# lemmatized = textAndNoise.lemmatize()
+# print(lemmatized[:20]) # to see the lemmatized text
 
 # Instantiate BasicRanking object
 # ranking = BasicRanking(result, usernames)

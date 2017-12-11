@@ -2,22 +2,28 @@ import re
 import json
 import nltk
 from nltk.stem import WordNetLemmatizer
+<<<<<<< Updated upstream
+=======
+from nltk.corpus import stopwords
+>>>>>>> Stashed changes
 
 class text_retrieve:
-    noise_list =  ['is','the','am','a','to','us','on','I','and','by','etc.','all','&','an','all.','A','have','has','had','in','most','of','your','.',',','are']
-
+    #noise_list =  ['is','the','am','a','to','us','on','I','and','by','etc.','all','&','an','all.','A','have','has','had','in','most','of','your','.',',','are']
+   
     def __init__(self, data):
         self.data = data
     #d1 and d2 are of type dictionary whereas data is of type list ........
+    en_stop = set(stopwords.words('english'))
     ##################Step one for data cleansing ###################
     def noise_removal(self):
         
         for d in self.data:
             for d1 in d['data']:# iterating through the list of dictionary
                 d1 = d1.__dict__
-                words = d1['message'].split()
-                noise_free_Wordlist = [word for word in words if word not in self.noise_list]
+                words = d1['message'].lower().split()
+                noise_free_Wordlist = [word for word in words if word not in self.en_stop]
                 d1['message'] = ' '.join(noise_free_Wordlist)
+                print(d1['message'])
         return self.data
 
     def flatten2DArray(self, array):
@@ -50,6 +56,11 @@ class text_retrieve:
         return lemmatized
 
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
 
     
     

@@ -6,7 +6,11 @@ from fbDatafetch import DataFetch_fb
 from basicRanking import BasicRanking
 from text_cleansing_step1 import text_retrieve
 
+<<<<<<< Updated upstream
 access_token = "EAACEdEose0cBANzFckmwv4TAkjQFU1mlJCRACyX1ZAa3Fvs2a2ebyhqdZBbAXpNNf0J3OjYTb9XikVMAEschNLiJ9nBnlxqULWsqnyZA2uTcXdX55o4h9wkaYwhC2Gm1GjvmkKT5f7uFXQWF4hfQ5utZBcLLf3kVWNYZCyaTY1n6ZBzoHDInD9"
+=======
+access_token = "EAACEdEose0cBACX4uoKIC8hF9nwlSAz7oMOMUZCAvWswNirV9zqmePILA9uTSObRZBwgJg4CrhXszNhGmo3uOpP4JjjjdqpmZCZCZAATkok2mMK4beP41tpvVjl2wMNqinFg9zySdQZALZA5XFKJqdQGxwBkclDFp7Ig9pIPyxlWsg09cJgbHWpi5XoMiuphHszPrggjEwfHQZDZD"
+>>>>>>> Stashed changes
 
 # Profile usernames
 usernames = ['RUR.AreYouReducingReusingRecycling', 'EARTHOHOLICS']

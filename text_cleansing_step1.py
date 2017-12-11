@@ -53,11 +53,6 @@ class text_retrieve:
         return lemmatized
 
 
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
 
     
     

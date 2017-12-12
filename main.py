@@ -6,6 +6,7 @@ from fbDatafetch import DataFetch_fb
 from basicRanking import BasicRanking
 from text_cleansing_step1 import text_retrieve
 
+
 access_token = "EAACEdEose0cBANyudWHRo9CDeLMsW4KnFWAcVsoe35G16DGOa7asUoghIUISCSj5jDLfZAFhXYmHXpAUVpLc21SOptl5ZB6S6QDRAnsNZACfRA6YSbkSfF1YLlEUZA9AJsm0gluAfKbaBkI9d8HB1M1OhspAlfzAGZAKwG7BKN7fxQOjmA1yDzMXwpG3eFseSC5Ix1Ec8KQZDZD"
 
 # Profile usernames

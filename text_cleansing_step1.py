@@ -4,6 +4,8 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, RegexpTokenizer, TweetTokenizer
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 class text_retrieve:
     #noise_list =  ['is','the','am','a','to','us','on','I','and','by','etc.','all','&','an','all.','A','have','has','had','in','most','of','your','.',',','are']

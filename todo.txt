@@ -18,7 +18,7 @@ Analysis
 1. Further classify text based on topics based on social work --todo
 2. Give a score based on more data like comments, dob, social media doj
 3. Better scoring algorithm --todo
-4. Sentement analysis
+4. Sentiment analysis
 
 Output
 

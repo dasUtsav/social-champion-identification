@@ -11,6 +11,7 @@ facebook-sdk = "*"
 nltk = "*"
 tweepy = "*"
 numpy = "*"
+pymongo = "*"
 
 
 [dev-packages]

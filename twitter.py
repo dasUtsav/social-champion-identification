@@ -7,7 +7,7 @@ class Tweet:
         self.hashtags = dict_tweet['entities']['hashtags']
         self.user_mentions = dict_tweet['entities']['user_mentions']
         self.urls = dict_tweet['entities']['urls']
-        self.text = dict_tweet['full_text']
+        self.message = dict_tweet['full_text']
 
 class Twitter:
 
@@ -23,14 +23,4 @@ class Twitter:
             tweets.append(tweet)
         return tweets
 
-consumer_key = "rLSO59KOXRjjWisGpsuqqaEdJ"
-consumer_secret = "rprRhqIsgxY49qFZlpRZmZs7pMXcFoJrGmryoRUUmXRQm6E9v0"
-
-access_token = "420400261-Qknhgi9XaPv1ZklKdV68Ef4ZzbmjyPTFKynzW2WR"
-access_token_secret = "B077y0aYdHAntBR0GKB84xHqkofTW2a99qb42iptprDwE"
-
-twitterEg = Twitter(consumer_key, consumer_secret, access_token, access_token_secret)
-
-tweets = twitterEg.fetchTweets('realDonaldTrump')
-print(tweets[0].__dict__)
 

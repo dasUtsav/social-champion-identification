@@ -6,3 +6,4 @@ pymongo
 elasticsearch
 pandas
 gensim
+flask

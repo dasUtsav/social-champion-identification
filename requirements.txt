@@ -1,0 +1,8 @@
+facebook-sdk
+nltk
+tweepy
+numpy
+pymongo
+elasticsearch
+pandas
+gensim

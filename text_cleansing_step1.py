@@ -4,6 +4,7 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, RegexpTokenizer, TweetTokenizer
+from twitter import Twitter
 
 class Text_retrieve:
     #noise_list =  ['is','the','am','a','to','us','on','I','and','by','etc.','all','&','an','all.','A','have','has','had','in','most','of','your','.',',','are']
@@ -19,7 +20,8 @@ class Text_retrieve:
         tokenizer = RegexpTokenizer(r'\w+')
         tweetTokenizer = TweetTokenizer(reduce_len=True)
         for d1 in self.data:
-            d1 = d1.__dict__
+            if not isinstance(d1, dict):
+                d1 = d1.__dict__
             message = d1['message'].lower()
             message = re.sub(r"http\S+","",message)
             message = re.sub("(@[A-Za-z]+)|([^A-Za-z \t])|(\w+:\/\/\S+)", " ", message)

@@ -8,6 +8,7 @@ class Tweet:
         self.user_mentions = dict_tweet['entities']['user_mentions']
         self.urls = dict_tweet['entities']['urls']
         self.message = dict_tweet['full_text']
+        self.screen_name = dict_tweet['user']['screen_name']
 
 class Twitter:
 

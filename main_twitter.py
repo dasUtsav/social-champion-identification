@@ -40,14 +40,19 @@ lemmatized = textAndNoise.lemmatize()
 lsimodel = LSIModeling()
 lsimodel.train(lemmatized, num_topics=20)
 
-elasticConfig = config['elasticsearch']
+with open('lsimodel.pickle', 'wb') as f:
+    pickle.dump(lsimodel, f)
 
-es = Elasticsearch([{'host': elasticConfig['host'], 'port': elasticConfig['port']}])
+# elasticConfig = config['elasticsearch']
 
-index = elasticConfig['index']
-doc_type = elasticConfig['doc_type']
+# es = Elasticsearch([{'host': elasticConfig['host'], 'port': elasticConfig['port']}])
 
-if not es.indices.exists(index):
-    print("creating index")
-    for i in range(len(lsimodel.topics)):
-        es.create(index=index, doc_type=doc_type, id=i+1, body={"content": str(lsimodel.topics[i])})
+# index = elasticConfig['index']
+# doc_type = elasticConfig['doc_type']
+
+# if not es.indices.exists(index):
+#     print("creating index")
+#     for i in range(len(lsimodel.topics)):
+#         es.create(index=index, doc_type=doc_type, id=i+1, body={"content": str(lsimodel.topics[i])})
+
+    

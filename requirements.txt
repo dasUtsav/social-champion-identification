@@ -7,3 +7,4 @@ elasticsearch
 pandas
 gensim
 flask
+textblob

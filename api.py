@@ -50,7 +50,8 @@ def getRank():
         for res in result:
             tweets.append(res)
         lsimodel.index()
-        doc_topic_dist = lsimodel.topicDist(tweets)
+        doc_topic_dist, sentiment = lsimodel.topicDist(tweets)
+        print(sentiment)
         res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
         id = int(res['hits']['hits'][0]['_id'])
         topic_relevance = doc_topic_dist[id]

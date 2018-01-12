@@ -4,6 +4,7 @@ from gensim import corpora
 from gensim.models import lsimodel
 from elasticsearch import Elasticsearch
 from text_cleansing_step1 import Text_retrieve
+from textblob import TextBlob
 
 class LSIModeling:
 
@@ -25,6 +26,15 @@ class LSIModeling:
             print("creating index")
             for i in range(len(lsimodel.topics)):
                 self.es.create(index=index, doc_type=doc_type, id=i+1, body={"content": str(self.topics[i])})
+
+    def analyze_sentiment(self, tweet):
+        analysis = TextBlob(tweet)
+        if analysis.sentiment.polarity > 0:
+            return 1
+        elif analysis.sentiment.polarity == 0:
+            return 0
+        else:
+            return -1
     
     def topicDist(self, docs):
         textAndNoise = Text_retrieve(docs)
@@ -37,8 +47,10 @@ class LSIModeling:
             sample = [b for (a,b) in topic]
             doc_sample.append(sample)
             topicVar = topic
+
+        sentiment = [self.analyze_sentiment(" ".join(tweet)) for tweet in lemmatized]
         doc_topic_dist = pd.DataFrame(doc_sample,columns=[a for (a,b) in topicVar])
-        return doc_topic_dist
+        return doc_topic_dist, sentiment
 
 
 

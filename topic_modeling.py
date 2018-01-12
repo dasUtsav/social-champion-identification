@@ -32,10 +32,12 @@ class LSIModeling:
         doc_dictionary = corpora.Dictionary(lemmatized)
         doc_bow = [doc_dictionary.doc2bow(text) for text in lemmatized]
         doc_sample = []
+        topicVar = {}
         for topic in self.model[doc_bow]:
             sample = [b for (a,b) in topic]
             doc_sample.append(sample)
-        doc_topic_dist = pd.DataFrame(doc_sample,columns=[a for (a,b) in topic])
+            topicVar = topic
+        doc_topic_dist = pd.DataFrame(doc_sample,columns=[a for (a,b) in topicVar])
         return doc_topic_dist
 
 

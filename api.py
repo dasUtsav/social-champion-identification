@@ -5,6 +5,7 @@ from flask import Flask, request
 from twitter import Twitter
 from collections import namedtuple
 from elasticsearch import Elasticsearch
+from ranking import Ranking
 
 config = json.load(open("config.json", 'r'))
 
@@ -52,8 +53,11 @@ def getRank():
         doc_topic_dist = lsimodel.topicDist(tweets)
         res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
         id = int(res['hits']['hits'][0]['_id'])
-        # topic_relevance = doc_topic_dist[id]
-        print(doc_topic_dist[id])
+        topic_relevance = doc_topic_dist[id]
+        ranking = Ranking(tweets, topic_relevance)
+        ranking.rank()
+        print(ranking.dataframe.head())
+
     return query
 
 if __name__ == '__main__':

@@ -9,6 +9,7 @@ class Tweet:
         self.urls = dict_tweet['entities']['urls']
         self.message = dict_tweet['full_text']
         self.screen_name = dict_tweet['user']['screen_name']
+        self.isRetweet = 1 if 'retweeted_status' in dict_tweet else 0
 
 class Twitter:
 

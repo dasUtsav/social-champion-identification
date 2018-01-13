@@ -1,0 +1,23 @@
+
+{% extends 'index.html' %}
+
+{% block body %}
+
+
+<div class="form-group container">
+    <form action="http://localhost:8000/addprofile" method="post"  class="form-inline">
+        <label for="profile">UserName:</label>
+        <input class="form-control" name="profile" type="text">
+        <input type="submit" class="btn btn-primary" value="add">
+    </form>
+    <br><br>
+    <form action="http://localhost:8000/rank" method="post" class="form-inline">
+        <label for="query">Query:</label>
+        <input class="form-control" name="query" type="text">
+        <input type="submit" value="submit" class="btn btn-primary">
+    </form>    
+</div>
+
+
+
+{% endblock %}

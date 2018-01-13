@@ -22,7 +22,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def success():
-    return render_template('index.html')
+    return render_template('form.html')
 
 @app.route('/addprofile', methods=['POST'])
 def addProfile():

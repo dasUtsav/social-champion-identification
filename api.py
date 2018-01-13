@@ -1,7 +1,7 @@
 import json
 import mongo
 import pickle
-from flask import Flask, request
+from flask import Flask, request, render_template
 from twitter import Twitter
 from collections import namedtuple
 from elasticsearch import Elasticsearch
@@ -22,7 +22,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def success():
-    return "Welcome"
+    return render_template('index.html')
 
 @app.route('/addprofile', methods=['POST'])
 def addProfile():

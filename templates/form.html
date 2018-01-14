@@ -4,7 +4,7 @@
 {% block body %}
 
 
-<div class="form-group container">
+<div class="form-group container text-center">
     <form action="http://localhost:8000/addprofile" method="post"  class="form-inline">
         <label for="profile">UserName:</label>
         <input class="form-control" name="profile" type="text">
@@ -17,7 +17,27 @@
         <input type="submit" value="submit" class="btn btn-primary">
     </form>    
 </div>
-
-
+{% if data is defined %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        
+        
+            {% for dict_item in data %}
+        <tr>
+            <td>{{dict_item['name']}}</td>
+            <td>{{dict_item['rank']}}</td>
+        </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}    
+    <h1>Please Enter a query</h1>
+{% endif %}
 
 {% endblock %}

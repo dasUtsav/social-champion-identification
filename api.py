@@ -1,6 +1,7 @@
 import json
 import mongo
 import pickle
+from operator import itemgetter
 from flask import Flask, request, render_template
 from twitter import Twitter
 from collections import namedtuple
@@ -37,13 +38,17 @@ def addProfile():
         'screen_name': tweet.screen_name
     }, True)
     
-    return profile
+    return render_template("form.html")
 
 @app.route('/rank', methods=['POST'])
 def getRank():
+    i = 1
     elasticConfig = config['elasticsearch']
     query = request.form['query']
     screen_names = mongo.usersCollection.find()
+    sorted_rank = []
+    rankings = []
+    sample = []
     for screen_name in screen_names:
         result = mongo.twitterCollection.find({'screen_name': screen_name['screen_name']})
         tweets = []
@@ -57,9 +62,16 @@ def getRank():
         topic_relevance = doc_topic_dist[id]
         ranking = Ranking(tweets, topic_relevance)
         ranking.rank()
-        print(ranking.dataframe.head())
+        temp = { 'name' : screen_name['screen_name'] , 'rank' : ranking.dataframe['rank'].mean() }
+        rankings.append(temp)
 
-    return query
+    rank_list = sorted(rankings, key=itemgetter('rank'), reverse=True)
+    
+    for ele in rank_list:
+        ele['rank'] = i
+        i = i+1
+    
+    return render_template("form.html",data = rank_list)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8000, debug=True)

@@ -58,7 +58,11 @@ def getRank():
         doc_topic_dist, sentiment = lsimodel.topicDist(tweets)
         print(sentiment)
         res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
-        id = int(res['hits']['hits'][0]['_id'])
+        print(res)
+        if res['hits']['hits']:
+            id = int(res['hits']['hits'][0]['_id'])
+        else: 
+            return "Topic Not Found"
         topic_relevance = doc_topic_dist[id]
         ranking = Ranking(tweets, topic_relevance)
         ranking.rank()

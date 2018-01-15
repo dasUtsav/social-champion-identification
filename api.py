@@ -47,6 +47,9 @@ def getRank():
     i = 1
     elasticConfig = config['elasticsearch']
     query = request.form['query']
+    filters = [request.form[key] for key in request.form.keys() if key != 'query']
+    print(filters)
+
     screen_names = mongo.usersCollection.find()
     sorted_rank = []
     rankings = []
@@ -54,12 +57,10 @@ def getRank():
     lsimodel.index()
     for screen_name in screen_names:
         result = mongo.twitterCollection.find({'screen_name': screen_name['screen_name']})
-        print("Over here after userfetch")
         tweets = []
         for res in result:
             tweets.append(res)
         doc_topic_dist, sentiment = lsimodel.topicDist(tweets)
-        print("Over here after finding the topic distribution")
         res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
         if res['hits']['hits']:
             id = int(res['hits']['hits'][0]['_id'])
@@ -68,9 +69,6 @@ def getRank():
         topic_relevance = doc_topic_dist[id]
         ranking = Ranking(tweets, topic_relevance)
         ranking.rank()
-        print("Over here after finding the rank")
-        print(screen_name['screen_name'])
-        print(ranking.dataframe)
         followerCountScore = screen_name['follower_count'] / 10000
         relevantTweetsCount = len(ranking.dataframe[ranking.dataframe['topic_relevance'] > 0])
         frequency = (relevantTweetsCount / len(ranking.dataframe)) * math.log(len(ranking.dataframe + 1))

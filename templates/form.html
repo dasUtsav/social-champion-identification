@@ -14,9 +14,9 @@
                         </form>
                 </div>
                 <div class="p-2">
-                        <form action="http://localhost:8000/rank" method="post" class="form-inline">
+                        <form action="http://localhost:8000/rank" method="post" class="form-inline" id="queryForm">
                             <label for="query">Query:</label>
-                            <input class="form-control" name="query" type="text">
+                            <input class="form-control" name="query" type="text" id="query">
                             <input type="submit" value="submit" class="btn btn-primary">
                         </form>
                 </div>
@@ -69,11 +69,7 @@
       </div>
         
     </div>
-    <script
-        src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous">
-    </script>
+
     <script>
         $(function () { function moveItems(origin, dest) {
         $(origin).find(':selected').appendTo(dest);
@@ -98,27 +94,18 @@
         $('#rightall').on('click', function () {
             moveAllItems('#sbOne', '#sbTwo');
         });
-        });
-
-        $('#left').click(function () {
-            moveItems('#sbTwo', '#sbOne');
-        });
-        
-        $('#right').on('click', function () {
-            moveItems('#sbOne', '#sbTwo');
-        });
-        
-        $('#leftall').on('click', function () {
-            moveAllItems('#sbTwo', '#sbOne');
-        });
-        
-        $('#rightall').on('click', function () {
-            moveAllItems('#sbOne', '#sbTwo');
-        });
-        $("#submit").click(() => {
+        $("#queryForm").submit((event) => {
+            event.preventDefault()
+            let filters = []
             for (var i = 0; i < $('select#sbTwo option').length; i++) {
-                console.log($('select#sbTwo option')[i].label)
+                filters.push($('select#sbTwo option')[i].label)
             }
+            let data = {
+                "query": $('#query').val(),
+                "filters": filters
+            };
+            $.redirect('http://localhost:8000/rank', data);
+        });
         });
 
     </script>

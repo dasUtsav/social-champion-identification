@@ -31,7 +31,6 @@ class Ranking:
             weightages[filter] = self.maxweight
             self.maxweight /= 2
         weightages['isRetweet'] = -0.075
-        print(weightages)
         for filter in filters:
             rank.append(weightages[filter] * self.dataframe[filter])
         rank = np.asarray(rank)

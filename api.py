@@ -1,6 +1,7 @@
 import json
 import mongo
 import pickle
+import math
 from operator import itemgetter
 from flask import Flask, request, render_template
 from twitter import Twitter
@@ -35,7 +36,8 @@ def addProfile():
     mongo.usersCollection.update({
         'screen_name': tweet.screen_name
     }, {
-        'screen_name': tweet.screen_name
+        'screen_name': tweet.screen_name,
+        'follower_count': tweet.follower_count
     }, True)
     
     return render_template("form.html")
@@ -69,7 +71,10 @@ def getRank():
         print("Over here after finding the rank")
         print(screen_name['screen_name'])
         print(ranking.dataframe)
-        temp = { 'name' : screen_name['screen_name'] , 'rank' : ranking.dataframe['rank'].mean() }
+        followerCountScore = screen_name['follower_count'] / 10000
+        relevantTweetsCount = len(ranking.dataframe[ranking.dataframe['topic_relevance'] > 0])
+        frequency = (relevantTweetsCount / len(ranking.dataframe)) * math.log(len(ranking.dataframe + 1))
+        temp = { 'name' : screen_name['screen_name'] , 'rank' : ranking.dataframe['rank'].mean() + followerCountScore + frequency}
         rankings.append(temp)
 
     rank_list = sorted(rankings, key=itemgetter('rank'), reverse=True)

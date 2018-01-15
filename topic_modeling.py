@@ -24,7 +24,7 @@ class LSIModeling:
         doc_type = elasticConfig['doc_type']
         if not self.es.indices.exists(index):
             print("creating index")
-            for i in range(len(lsimodel.topics)):
+            for i in range(len(self.topics)):
                 self.es.create(index=index, doc_type=doc_type, id=i+1, body={"content": str(self.topics[i])})
 
     def analyze_sentiment(self, tweet):

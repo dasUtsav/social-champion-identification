@@ -49,16 +49,16 @@ def getRank():
     sorted_rank = []
     rankings = []
     sample = []
+    lsimodel.index()
     for screen_name in screen_names:
         result = mongo.twitterCollection.find({'screen_name': screen_name['screen_name']})
+        print("Over here after userfetch")
         tweets = []
         for res in result:
             tweets.append(res)
-        lsimodel.index()
         doc_topic_dist, sentiment = lsimodel.topicDist(tweets)
-        print(sentiment)
+        print("Over here after finding the topic distribution")
         res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
-        print(res)
         if res['hits']['hits']:
             id = int(res['hits']['hits'][0]['_id'])
         else: 
@@ -66,6 +66,9 @@ def getRank():
         topic_relevance = doc_topic_dist[id]
         ranking = Ranking(tweets, topic_relevance)
         ranking.rank()
+        print("Over here after finding the rank")
+        print(screen_name['screen_name'])
+        print(ranking.dataframe)
         temp = { 'name' : screen_name['screen_name'] , 'rank' : ranking.dataframe['rank'].mean() }
         rankings.append(temp)
 

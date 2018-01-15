@@ -12,14 +12,28 @@ class Ranking:
         self.dataframe['hashtags'] = [len(document['hashtags']) for document in documents]
         self.dataframe['topic_relevance'] = topic_relevance.values.tolist()
         self.dataframe = pd.DataFrame(self.dataframe)
+        nullValues = {'likes': 0, 'retweets': 0, 'isRetweet': 0, 'urls': 0,
+                      'hashtags': 0, 'topic_relevance': -1}
+        self.dataframe = self.dataframe.fillna(nullValues)
         scalerColumns = ['likes', 'retweets']
         with open('scaler.pickle', 'rb') as f:
             scaler = pickle.load(f)
         X_train_np = self.dataframe[scalerColumns].values
         X_train_np = scaler.transform(X_train_np)
         self.dataframe[scalerColumns] = X_train_np
+        self.maxweight = 2
+            
 
-    def rank(self):
-        self.dataframe['rank'] = np.array(0.01*(self.dataframe['likes'] + self.dataframe['retweets'])
-                                         + 0.2*(self.dataframe['hashtags'] + self.dataframe['urls']) 
-                                         - 0.075*self.dataframe['isRetweet'] + 3*self.dataframe['topic_relevance'])
+    def rank(self, filters=['topic_relevance', 'hashtags', 'urls', 'likes', 'retweets', 'isRetweet']):
+        weightages = {}
+        rank = []
+        for filter in filters:
+            weightages[filter] = self.maxweight
+            self.maxweight /= 2
+        weightages['isRetweet'] = -0.075
+        print(weightages)
+        for filter in filters:
+            rank.append(weightages[filter] * self.dataframe[filter])
+        rank = np.asarray(rank)
+        rank = np.sum(rank, axis=0)
+        self.dataframe['rank'] = rank

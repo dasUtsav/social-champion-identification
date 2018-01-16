@@ -48,11 +48,12 @@
       </div>
       <div>
         <select id="sbOne" multiple="multiple">
-            <option value="1">Likes</option>
-            <option value="2">Retweets</option>
-            <option value="3">URL</option>
-            <option value="4">Topic Relevance</option>
-            <option value="5">Hashtags</option>
+            <option value="likes">Likes</option>
+            <option value="retweets">Retweets</option>
+            <option value="urls">URL</option>
+            <option value="topic_relevance">Topic Relevance</option>
+            <option value="hashtags">Hashtags</option>
+            <option value="sentiment">Sentiment</option>
         </select>
 
         <select id="sbTwo" multiple="multiple">
@@ -98,7 +99,7 @@
             event.preventDefault()
             let filters = []
             for (var i = 0; i < $('select#sbTwo option').length; i++) {
-                filters.push($('select#sbTwo option')[i].label)
+                filters.push($('select#sbTwo option')[i].value)
             }
             let data = {
                 "query": $('#query').val(),

@@ -44,12 +44,12 @@ def addProfile():
 
 @app.route('/rank', methods=['POST'])
 def getRank():
+    print("gg")
     i = 1
     elasticConfig = config['elasticsearch']
     query = request.form['query']
     filters = [request.form[key] for key in request.form.keys() if key != 'query']
     print(filters)
-
     screen_names = mongo.usersCollection.find()
     sorted_rank = []
     rankings = []
@@ -67,8 +67,11 @@ def getRank():
         else: 
             return "Topic Not Found"
         topic_relevance = doc_topic_dist[id]
-        ranking = Ranking(tweets, topic_relevance)
-        ranking.rank()
+        ranking = Ranking(tweets, topic_relevance, sentiment)
+        if len(filters) != 0:
+            ranking.rank(filters)
+        else:
+            ranking.rank()
         followerCountScore = screen_name['follower_count'] / 10000
         relevantTweetsCount = len(ranking.dataframe[ranking.dataframe['topic_relevance'] > 0])
         frequency = (relevantTweetsCount / len(ranking.dataframe)) * math.log(len(ranking.dataframe + 1))
@@ -77,9 +80,8 @@ def getRank():
 
     rank_list = sorted(rankings, key=itemgetter('rank'), reverse=True)
     
-    for ele in rank_list:
-        ele['rank'] = i
-        i = i+1
+    for index, ele in enumerate(rank_list):
+        ele['rank'] = index + 1
     
     return render_template("form.html",data = rank_list)
 

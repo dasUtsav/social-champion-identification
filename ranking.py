@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 class Ranking:
-    def __init__(self, documents, topic_relevance):
+    def __init__(self, documents, topic_relevance, sentiment):
         self.dataframe = {}
         self.dataframe['likes'] = [document['favourite_count'] for document in documents]
         self.dataframe['retweets'] = [document['retweet_count'] for document in documents]
@@ -11,6 +11,7 @@ class Ranking:
         self.dataframe['urls'] = [len(document['urls']) for document in documents]
         self.dataframe['hashtags'] = [len(document['hashtags']) for document in documents]
         self.dataframe['topic_relevance'] = topic_relevance.values.tolist()
+        self.dataframe['sentiment'] = sentiment
         self.dataframe = pd.DataFrame(self.dataframe)
         nullValues = {'likes': 0, 'retweets': 0, 'isRetweet': 0, 'urls': 0,
                       'hashtags': 0, 'topic_relevance': -1}
@@ -24,7 +25,7 @@ class Ranking:
         self.maxweight = 2
             
 
-    def rank(self, filters=['topic_relevance', 'hashtags', 'urls', 'likes', 'retweets', 'isRetweet']):
+    def rank(self, filters=['topic_relevance', 'hashtags', 'urls', 'sentiment', 'likes', 'retweets', 'isRetweet']):
         weightages = {}
         rank = []
         for filter in filters:

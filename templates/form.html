@@ -1,97 +1,109 @@
+ {% extends 'index.html' %} {% block body %}
 
-{% extends 'index.html' %}
+<div class="container text-center" style="padding: 50px 0px 100px 0px">
+    <div class="container jumbotron">
 
-{% block body %}
 
-    <div class="container text-center" style="padding: 50px 0px 100px 0px">
-        <div class="container jumbotron">
-            <div class="d-flex flex-row">
-                <div class="p-2">
-                        <form action="http://localhost:8000/addprofile" method="post"  class="form-inline">
-                            <label for="profile">UserName:</label>
-                            <input class="form-control" name="profile" type="text">
-                            <input type="submit" class="btn btn-primary" value="add">
-                        </form>
+        <!-- <form action="http://localhost:8000/addprofile" method="post" class="form-inline">
+                    <label for="profile">UserName:</label>
+                    <input class="form-control" name="profile" type="text">
+                    <input type="submit" class="btn btn-primary" value="add">
+                </form> -->
+
+
+        <form action="http://localhost:8000/rank" method="post" class="" id="queryForm">
+            <div class="row">
+                <label class="col-sm-2 col-for-label" for="query">
+                    <h3>Query:</h3>
+                </label>
+                <div class="col-sm-8">
+                    <input class="form-control" name="query" placeholder="Eg. Health Care" type="text" id="query">
                 </div>
-                <div class="p-2">
-                        <form action="http://localhost:8000/rank" method="post" class="form-inline" id="queryForm">
-                            <label for="query">Query:</label>
-                            <input class="form-control" name="query" type="text" id="query">
-                            <input type="submit" value="submit" class="btn btn-primary">
-                        </form>
+                <div class="col-sm-2">
+                    <input type="submit" value="Submit" class="btn btn-primary">
                 </div>
             </div>
-        </div>
-    {% if data is defined %}
-      <div>
-            <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Rank</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    
-                    
-                        {% for dict_item in data %}
-                    <tr>
-                        <td>{{dict_item['name']}}</td>
-                        <td>{{dict_item['rank']}}</td>
-                    </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}    
-                <h1>Please Enter a query</h1>
-            {% endif %}
-      </div>
-      <div>
-        <select id="sbOne" multiple="multiple">
-            <option value="likes">Likes</option>
-            <option value="retweets">Retweets</option>
-            <option value="urls">URL</option>
-            <option value="topic_relevance">Topic Relevance</option>
-            <option value="hashtags">Hashtags</option>
-            <option value="sentiment">Sentiment</option>
-        </select>
 
-        <select id="sbTwo" multiple="multiple">
-            
-        </select>
-        
-        <br />
-        
-        <input type="button" id="left" value="<" />
-        <input type="button" id="right" value=">" />
-        <input type="button" id="leftall" value="<<" />
-        <input type="button" id="rightall" value=">>" />
-        <input type="button" value="Submit" id="submit"/>
-      </div>
-        
+        </form>
     </div>
+    {% if data is defined %}
+    <hr>
+    <div class="row">
+        <div class="col-sm-4">
+            <h2>Filters</h2>
+            <select class="list-group" id="sbOne" multiple="multiple">
+                <option class="list-group-item" value="likes">Likes</option>
+                <option class="list-group-item" value="retweets">Retweets</option>
+                <option class="list-group-item" value="urls">URL</option>
+                <option class="list-group-item" value="topic_relevance">Topic Relevance</option>
+                <option class="list-group-item" value="hashtags">Hashtags</option>
+                <option class="list-group-item" value="sentiment">Sentiment</option>
+            </select>
 
-    <script>
-        $(function () { function moveItems(origin, dest) {
-        $(origin).find(':selected').appendTo(dest);
+            <select class="" id="sbTwo" multiple="multiple"></select>
+            <br>
+                    
+        <div class="btn-group">
+            <input class="btn btn-secondary" type="button" id="left" value="<"/>
+            <input class="btn btn-secondary" type="button" id="right" value=">"/>
+            <input class="btn btn-secondary" type="button" id="leftall" value="<<"/>
+            <input class="btn btn-secondary" type="button" id="rightall" value=">>"/>
+        </div>
+        <input class="btn btn-success" type="button" value="Filter" id="submit" />
+    </div>
+    <div class="col-sm-8">
+        <h2>Leaderboard</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Rank</th>
+                </tr>
+            </thead>
+            <tbody>
+
+
+                {% for dict_item in data %}
+                <tr>
+                    <td>{{dict_item['name']}}</td>
+                    <td>{{dict_item['rank']}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<h1>Please Enter a query to get the leaderboard.</h1>
+{% endif %}
+
+
+
+</div>
+
+<script>
+    $(function () {
+        function moveItems(origin, dest) {
+            $(origin).find(':selected').appendTo(dest);
         }
-        
+
         function moveAllItems(origin, dest) {
             $(origin).children().appendTo(dest);
         }
-        
+
         $('#left').click(function () {
             moveItems('#sbTwo', '#sbOne');
         });
-        
+
         $('#right').on('click', function () {
             moveItems('#sbOne', '#sbTwo');
         });
-        
+
         $('#leftall').on('click', function () {
             moveAllItems('#sbTwo', '#sbOne');
         });
-        
+
         $('#rightall').on('click', function () {
             moveAllItems('#sbOne', '#sbTwo');
         });
@@ -107,7 +119,6 @@
             };
             $.redirect('http://localhost:8000/rank', data);
         });
-        });
+    });
 
-    </script>
-{% endblock %}
+</script> {% endblock %}

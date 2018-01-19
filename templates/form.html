@@ -7,33 +7,21 @@
  {% block body %}
 
 <div class="container text-center" style="padding: 50px 0px 100px 0px">
-    <div class="container jumbotron">
 
-
-        <!-- <form action="http://localhost:8000/addprofile" method="post" class="form-inline">
-                    <label for="profile">UserName:</label>
-                    <input class="form-control" name="profile" type="text">
-                    <input type="submit" class="btn btn-primary" value="add">
-                </form> -->
-
-
-        <form action="http://localhost:8000/rank" method="post" class="" id="queryForm">
-            <div class="row">
-                <label class="col-sm-2 col-for-label" for="query">
-                    <h3>Query:</h3>
-                </label>
-                <div class="col-sm-8">
-                    <input class="form-control" name="query" placeholder="Eg. Health Care" type="text" id="query">
-                </div>
-                <div class="col-sm-2">
-                    <input type="submit" value="Submit" class="btn btn-primary">
-                </div>
-            </div>
-
-        </form>
-    </div>
     {% if final_ranks is defined %}
-    <hr>
+    <div class="row">
+        <div class="col-sm-12">
+                <p>
+                    {% for pending_topic in pending_topics %}
+                        {{pending_topic.capitalize()}}, 
+                    {% endfor %}
+
+                    is not present in the training corpus at the moment. We will revert back shortly! :)
+                </p>
+            
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-sm-4">
             <h2>Filters</h2>
@@ -57,6 +45,7 @@
         </div>
         <input class="btn btn-success" type="button" value="Filter" id="submit" />
     </div>
+
     <div class="col-sm-8">
         <h2>Leaderboard</h2>
         {% for data in final_ranks %}

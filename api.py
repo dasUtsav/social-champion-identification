@@ -43,12 +43,18 @@ def check():
         if res['hits']['hits']:
             topic['isPresent'] = True
             flag = True
+        interest_list.append(topic)
+
+    # print(interest_list)
+
+    for interest in interest_list:
+        mongo.topicCollection.insert(interest)
+
     if flag is True:
         return render_template('upload_candidates.html')
     else:
         return "Topic Not Found"
-
-
+            
 @app.route('/addprofile', methods=['POST'])
 def addProfile():
     # profile = request.form['profile']

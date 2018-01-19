@@ -113,6 +113,7 @@ def getRank():
             temp = { 'name' : screened_tweet['screen_name'] , 'rank' : ranking.dataframe['rank'].mean() + followerCountScore + frequency}
             rankings.append(temp)
         rank_list = sorted(rankings, key=itemgetter('rank'), reverse=True)
+        rank_list = rank_list[:5]
         for index, ele in enumerate(rank_list):
             ele['rank'] = index + 1
         final_ranks.append({

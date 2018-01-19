@@ -1,4 +1,10 @@
- {% extends 'index.html' %} {% block body %}
+ {% extends 'index.html' %} 
+
+ {% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+ {% endblock %}
+ 
+ {% block body %}
 
 <div class="container text-center" style="padding: 50px 0px 100px 0px">
     <div class="container jumbotron">
@@ -54,8 +60,8 @@
     <div class="col-sm-8">
         <h2>Leaderboard</h2>
         {% for data in final_ranks %}
-        <h3>{{data['query']}}</h3>
-        <table class="table table-striped">
+        <h3 class="query">{{data['query'].capitalize()}}</h3>
+        <table class="table table-striped leaderboard">
             <thead>
                 <tr>
                     <th>Name</th>

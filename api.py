@@ -2,8 +2,9 @@ import json
 import mongo
 import pickle
 import math
+import pandas as pd
 from operator import itemgetter
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect
 from twitter import Twitter
 from collections import namedtuple
 from elasticsearch import Elasticsearch
@@ -42,39 +43,40 @@ def check():
         if res['hits']['hits']:
             topic['isPresent'] = True
             flag = True
-
-    print(interest_list)
     if flag is True:
         return render_template('upload_candidates.html')
     else:
         return "Topic Not Found"
-            
-                
-    
-
 
 
 @app.route('/addprofile', methods=['POST'])
 def addProfile():
-    profile = request.form['profile']
-    twitterEg = Twitter(consumer_key, consumer_secret, access_token, access_token_secret)
-    tweets = twitterEg.fetchTweets(profile, limit=10)
-    for tweet in tweets:
-        mongo.twitterCollection.insert(tweet.__dict__)
-    mongo.usersCollection.update({
-        'screen_name': tweet.screen_name
-    }, {
-        'screen_name': tweet.screen_name,
-        'follower_count': tweet.follower_count
-    }, True)
-    
-    return render_template("form.html")
+    # profile = request.form['profile']
+    if 'handles' not in request.files:
+        flash('No handles part')
+        return redirect(request.url)
+    csvFile = pd.read_csv(request.files['handles'])
+    handles = csvFile['Handle'].tolist()
+    for profile in handles:
+        twitterEg = Twitter(consumer_key, consumer_secret, access_token, access_token_secret)
+        tweets = twitterEg.fetchTweets(profile, limit=10)
+        for tweet in tweets:
+            mongo.twitterCollection.insert(tweet.__dict__)
+        mongo.usersCollection.update({
+            'screen_name': tweet.screen_name
+        }, {
+            'screen_name': tweet.screen_name,
+            'follower_count': tweet.follower_count
+        }, True)
+    return redirect("/rank", code=200)
 
-@app.route('/rank', methods=['POST'])
+@app.route('/rank', methods=['GET', 'POST'])
 def getRank():
     elasticConfig = config['elasticsearch']
     queries = ['health', 'nasw']
-    filters = [request.form[key] for key in request.form.keys() if key != 'query']
+    filters = []
+    if request.method == 'POST':
+        filters = [request.form[key] for key in request.form.keys() if key != 'query']
     screen_names = mongo.usersCollection.find()
     sorted_rank = []
     sample = []

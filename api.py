@@ -17,14 +17,42 @@ consumer_secret = twitterCredentials['consumer_secret']
 access_token = twitterCredentials['access_token']
 access_token_secret = twitterCredentials['access_token_secret']
 
+
 with open('lsimodel.pickle', 'rb') as f:
     lsimodel = pickle.load(f)
+lsimodel.index()
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def success():
-    return render_template('form.html')
+    return render_template('landing.html')
+
+@app.route('/check', methods=['POST'])
+def check():
+    flag = False
+    interest_list = []
+    
+    elasticConfig = config['elasticsearch']
+    interests = [request.form[key] for key in request.form.keys()]
+    for item in interests:
+        topic = { 'name' : item, 'isPresent': False}
+        res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": item}}})
+        if res['hits']['hits']:
+            topic['isPresent'] = True
+            flag = True
+
+    print(interest_list)
+    if flag is True:
+        return render_template('upload_candidates.html')
+    else:
+        return "Topic Not Found"
+            
+                
+    
+
+
 
 @app.route('/addprofile', methods=['POST'])
 def addProfile():
@@ -53,7 +81,7 @@ def getRank():
     rank_list = []
     final_ranks = []
     screened_tweets = []
-    lsimodel.index()
+    
     for screen_name in screen_names:
         result = mongo.twitterCollection.find({'screen_name': screen_name['screen_name']})
         tweets = []

@@ -23,8 +23,8 @@
         </form>
     </div>
 
+    
     <ul id="interest" class="list-group">
-        
     </ul>
     <br>
     <button class="btn btn-primary btn-block" type="button" id="final_submit">submit</button>
@@ -43,17 +43,18 @@
         $('#final_submit').click(function () {
             
             let interest = []
-            for (var i = 0; i < $('#interest').length; i++) {
-                interest.push($('#interest li')[i].value)
+            for (var i = 0; i < $('#interest li').length; i++) {
+                interest.push($('#interest li')[i].innerHTML)
             }
-            console.log(interest)
+            
+            $.redirect('http://localhost:8000/check', interest);
         });
 
         
             
 
             
-            //$.redirect('http://localhost:8000/rank', interest);
+            
         
 
 </script>

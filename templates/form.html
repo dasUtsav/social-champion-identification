@@ -26,7 +26,7 @@
 
         </form>
     </div>
-    {% if data is defined %}
+    {% if final_ranks is defined %}
     <hr>
     <div class="row">
         <div class="col-sm-4">
@@ -53,6 +53,8 @@
     </div>
     <div class="col-sm-8">
         <h2>Leaderboard</h2>
+        {% for data in final_ranks %}
+        <h3>{{data['query']}}</h3>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -63,7 +65,7 @@
             <tbody>
 
 
-                {% for dict_item in data %}
+                {% for dict_item in data['rank_list'] %}
                 <tr>
                     <td>{{dict_item['name']}}</td>
                     <td>{{dict_item['rank']}}</td>
@@ -71,6 +73,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% endfor %}
     </div>
 </div>
 

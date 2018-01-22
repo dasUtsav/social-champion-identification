@@ -23,7 +23,7 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <h2>Filters</h2>
             <select class="list-group" id="sbOne" multiple="multiple">
                 <option class="list-group-item" value="likes">Likes</option>
@@ -43,10 +43,10 @@
             <input class="btn btn-secondary" type="button" id="leftall" value="<<"/>
             <input class="btn btn-secondary" type="button" id="rightall" value=">>"/>
         </div>
-        <input class="btn btn-success" type="button" value="Filter" id="submit" />
+        <input class="btn btn-success" id="queryForm" type="button" value="Filter" id="submit" />
     </div>
 
-    <div class="col-sm-8">
+    <div class="col-sm-9">
         <h2>Leaderboard</h2>
         {% for data in final_ranks %}
         <h3 class="query">{{data['query'].capitalize()}}</h3>
@@ -105,7 +105,7 @@
         $('#rightall').on('click', function () {
             moveAllItems('#sbOne', '#sbTwo');
         });
-        $("#queryForm").submit((event) => {
+        $("#queryForm").click((event) => {
             event.preventDefault()
             let filters = []
             for (var i = 0; i < $('select#sbTwo option').length; i++) {

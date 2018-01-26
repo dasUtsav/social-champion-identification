@@ -7,6 +7,7 @@ Identifying a social champion using the concepts of natural language processing
 * Python 3.5 or above
 * pip3
 * Anaconda
+* Elasticsearch
 
 ### Dependency Installation
 
@@ -15,6 +16,8 @@ $ pip3 install -r requirements.txt
 ```
 
 ### Starting the environment
+
+First start your elasticsearch server
 
 ```sh
 $ python3 main_twitter.py

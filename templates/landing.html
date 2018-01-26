@@ -1,0 +1,62 @@
+{% extends 'index.html' %}
+
+
+
+{% block body %}
+
+<div class="container">
+    <h2 class="text-center" style="padding-top:20px">Please enter your area of interest(s)</h2>
+    <br>
+    <div class="container jumbotron">
+        
+        <form  id="queryForm">
+            <div class="row">
+                
+                <div class="col-sm-11">
+                    <input class="form-control" name="query" placeholder="Eg. Health Care" type="text" id="query">
+                </div>
+                <div class="col-sm-1">
+                    <input type="submit" value="Add" class="btn btn-primary" id="Add">
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    
+    <ul id="interest" class="list-group">
+    </ul>
+    <br>
+    <button class="btn btn-primary btn-block" type="button" id="final_submit">submit</button>
+
+</div>
+
+<script>
+       
+        
+        $("#queryForm").submit((event) => {
+            event.preventDefault()
+           
+            $('#interest').append('<li class="list-group-item">'+ $('#query').val() + '</li>')
+        });
+
+        $('#final_submit').click(function () {
+            
+            let interest = []
+            for (var i = 0; i < $('#interest li').length; i++) {
+                interest.push($('#interest li')[i].innerHTML)
+            }
+            
+            $.redirect('http://localhost:8000/check', interest);
+        });
+
+        
+            
+
+            
+            
+        
+
+</script>
+
+{% endblock %}

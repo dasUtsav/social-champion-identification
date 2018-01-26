@@ -1,0 +1,17 @@
+{% extends 'index.html' %}
+
+{% block body %}
+
+<div class="container">
+        <h2 class="text-center">Upload a csv file containing name and twitter_handle</h2>
+        <br>
+        <form class="form-group jumbotron" action="http://localhost:8000/addprofile" method="POST"
+        enctype = "multipart/form-data">
+            <input type="file" class="form-control" name="handles" accept=".csv">
+            <input type="submit" class="btn btn-primary">
+        </form>
+    
+
+</div>
+
+{% endblock %}

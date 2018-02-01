@@ -5,12 +5,14 @@
 
     {% if final_ranks is defined %}
     <div class="row">
-        <div class="col-sm-12 alert alert-info" role="alert">
+        <div class="col-sm-12 alert alert-info alert-dismissible fade show" role="alert">
             <p>
                 {% for pending_topic in pending_topics %} {{pending_topic.capitalize()}}, {% endfor %} is not present in the training corpus
                 at the moment. We will revert back shortly! :)
             </p>
-
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     </div>
 

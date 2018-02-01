@@ -12,6 +12,13 @@ class Tweet:
         self.follower_count = dict_tweet['user']['followers_count']
         self.isRetweet = 1 if 'retweeted_status' in dict_tweet else 0
 
+class User:
+    def __init__(self, dict_tweet):
+        self.profile_image_url = dict_tweet["profile_image_url"]
+        self.status_count = dict_tweet["statuses_count"]
+        self.screen_name = dict_tweet["screen_name"]
+        self.id = dict_tweet["id"]
+
 class Twitter:
 
     def __init__(self, consumer_key, consumer_secret, access_token, access_token_secret):
@@ -25,5 +32,19 @@ class Twitter:
             tweet = Tweet(status._json)
             tweets.append(tweet)
         return tweets
+
+    def fetchFollowers(self, handle, limit=5):
+        users = []
+        for user in tweepy.Cursor(self.api.followers, id=handle).items(limit):
+            user = User(user._json)
+            users.append(user)
+        return users
+    
+    def fetchFriends(self, handle, limit=5):
+        users = []
+        for user in tweepy.Cursor(self.api.friends, id=handle).items(limit):
+            user = User(user._json)
+            users.append(user)
+        return users
 
 

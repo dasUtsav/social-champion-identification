@@ -24,10 +24,11 @@ class Text_retrieve:
                 d1 = d1.__dict__
             message = d1['message'].lower()
             message = re.sub(r"http\S+","",message)
+            message = re.sub(r"rt","",message)
             message = re.sub("(@[A-Za-z]+)|([^A-Za-z \t])|(\w+:\/\/\S+)", " ", message)
             words = tokenizer.tokenize(message)            
             noise_free_Wordlist = [word for word in words if word not in self.en_stop
-                                    or not re.search(r"^[^\w]$", "12sdad")]
+                                    or not re.search(r"^[^\w]$", word)]
             tokenized_words.append(noise_free_Wordlist)
         return tokenized_words
 

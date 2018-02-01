@@ -1,12 +1,26 @@
-.leaderboard {
+.leaderboard,{
     margin-top: 20px;
     margin-bottom: 20px;
+}
+
+
+
+.leaderboard td {
+    text-align: left;
+}
+
+.leaderboard .profile_image {
+    border-radius: 50%; 
+    border: 2px solid red; 
+    margin-right: 1em;
 }
 
 .query {
     text-align: left;
 }
 
+
 #sbOne, #sbTwo {
     width: 100%;
 }
+

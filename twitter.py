@@ -3,6 +3,7 @@ import tweepy, json
 class Tweet:
     def __init__(self, dict_tweet):
         self.favourite_count = dict_tweet['favorite_count']
+        self.id = dict_tweet['user']['id']
         self.retweet_count = dict_tweet['retweet_count']
         self.hashtags = dict_tweet['entities']['hashtags']
         self.user_mentions = dict_tweet['entities']['user_mentions']
@@ -24,7 +25,7 @@ class Twitter:
     def __init__(self, consumer_key, consumer_secret, access_token, access_token_secret):
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
-        self.api = tweepy.API(auth)
+        self.api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
     
     def fetchTweets(self, handle, limit=5):
         tweets = []

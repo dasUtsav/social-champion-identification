@@ -1,0 +1,6 @@
+Ass 1
+
+Explain various transparencies in DS
+What is deadlock? Explain methods of deadlock avoidance
+What is mutual exclusion? Explain Distributed mutual exclusion algo
+Write short note on different Dist deadlock detection algo with eg

@@ -21,6 +21,7 @@ class TwitterGraph:
         res = twitterInstance.api.get_user(screen_name)
         self.G.add_node(res.id, status_count = res.statuses_count, 
                         screen_name = res.screen_name, similarity={},
+                        followers_count = res.followers_count,
                         isRetrieve = False)
         users = twitterInstance.fetchFollowers(res.id, limit=max_followers)
         
@@ -29,10 +30,14 @@ class TwitterGraph:
                 self.G.add_node(user.id, similarity = {})
             self.G.add_node(user.id, status_count = user.status_count, 
                             screen_name = user.screen_name,
+                            followers_count = user.followers_count,
                             isRetrieve = False)
             if not self.G.has_edge(user.id, res.id):
                 self.G.add_edge(user.id, res.id, retweets=0)
-            friends = twitterInstance.fetchFollowers(user.id, limit=max_follower_friends)
+            try:
+                friends = twitterInstance.fetchFollowers(user.id, limit=max_follower_friends)
+            except:
+                friends = []
 
             for friend in friends:
                 if not friend.id in self.G.nodes():
@@ -40,6 +45,7 @@ class TwitterGraph:
                 self.G.add_node(friend.id, 
                                 status_count = friend.status_count, 
                                 screen_name = friend.screen_name,
+                                followers_count = user.followers_count,
                                 isRetrieve = False)
                 if not self.G.has_edge(user.id, friend.id):
                     self.G.add_edge(user.id, friend.id, retweets=0)
@@ -48,19 +54,33 @@ class TwitterGraph:
 
     def fetch_tweets(self, screen_id, max_tweets):
         if self.G.node[screen_id]['isRetrieve'] == False:
-            tweets = twitterInstance.fetchTweets(screen_id, max_tweets)
-            for tweet in tweets:
-                mongo.twitterCollection.insert(tweet.__dict__)
-            self.G.node[screen_id]['isRetrieve'] = True
-            tweets_text = [tweet.message for tweet in tweets]
-            self.write_pickle()
+            tweets = self.fetch_and_store(screen_id, max_tweets)
         else:
-            tweets = mongo.twitterCollection.find({'id': screen_id})
+            tweets = mongo.twitterCollection.find({'user_id': screen_id})
             tweets = [tweet for tweet in tweets]
-            tweets_text = [tweet['message'] for tweet in tweets]
         text_retrieve = Text_retrieve(tweets)
         tweet_doc = text_retrieve.lemmatize()
         return tweet_doc
+
+    def fetch_and_store(self, screen_id, max_tweets):
+        tweets = twitterInstance.fetchTweets(screen_id, max_tweets)
+        for tweet in tweets:
+            mongo.twitterCollection.insert(tweet.__dict__)
+        self.G.node[screen_id]['isRetrieve'] = True
+        self.write_pickle()
+        return tweets
+
+    def fetch_favourites(self, screen_id, max_tweets):
+        if self.G.node[screen_id]['isRetrieve'] == False:
+            tweets = self.fetch_and_store(screen_id, max_tweets)
+            favourite_counts = [tweet.favourite_count for tweet in tweets]
+            retweet_counts = [tweet.retweet_count for tweet in tweets]
+        else:
+            tweets = mongo.twitterCollection.find({'user_id': screen_id})
+            tweets = [tweet for tweet in tweets]
+            favourite_counts = [tweet['favourite_count'] for tweet in tweets]
+            retweet_counts = [tweet['retweet_count'] for tweet in tweets]
+        return favourite_counts, retweet_counts
 
     def set_tweet_doc(self, screen_id, max_tweets):
         tweet_doc = self.fetch_tweets(screen_id, max_tweets)

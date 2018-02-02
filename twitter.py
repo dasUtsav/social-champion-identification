@@ -3,7 +3,7 @@ import tweepy, json
 class Tweet:
     def __init__(self, dict_tweet):
         self.favourite_count = dict_tweet['favorite_count']
-        self.id = dict_tweet['user']['id']
+        self.user_id = dict_tweet['user']['id']
         self.retweet_count = dict_tweet['retweet_count']
         self.hashtags = dict_tweet['entities']['hashtags']
         self.user_mentions = dict_tweet['entities']['user_mentions']
@@ -18,6 +18,7 @@ class User:
         self.profile_image_url = dict_tweet["profile_image_url"]
         self.status_count = dict_tweet["statuses_count"]
         self.screen_name = dict_tweet["screen_name"]
+        self.followers_count = dict_tweet["followers_count"]
         self.id = dict_tweet["id"]
 
 class Twitter:
@@ -29,9 +30,12 @@ class Twitter:
     
     def fetchTweets(self, handle, limit=5):
         tweets = []
-        for status in tweepy.Cursor(self.api.user_timeline, id=handle, tweet_mode='extended').items(limit):
-            tweet = Tweet(status._json)
-            tweets.append(tweet)
+        try:
+            for status in tweepy.Cursor(self.api.user_timeline, id=handle, tweet_mode='extended').items(limit):
+                tweet = Tweet(status._json)
+                tweets.append(tweet)
+        except:
+            tweets = []
         return tweets
 
     def fetchFollowers(self, handle, limit=5):

@@ -21,7 +21,6 @@ class TopicInfluence:
 
     def compute_rank(self, max_tweets, center_nodes = [], gamma=0.75):
         probab_matrix, node_array = self.getProbabMatrix(max_tweets, center_nodes)
-        print(probab_matrix)
         rank_vector = np.array([1 for a in node_array])
         for i in range(1, 2):
             rank_vector = gamma * np.dot(probab_matrix.T, rank_vector)

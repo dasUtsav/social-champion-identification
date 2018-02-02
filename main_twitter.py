@@ -1,6 +1,7 @@
 import os
 from classes.TwitterGraph import TwitterGraph
 from classes.TopicInfluence import TopicInfluence
+from classes.MOI import MOI
 from Instances import twitterInstance
 
 
@@ -8,7 +9,8 @@ twitterGraph = TwitterGraph("twitterGraph.pickle")
 
 # twitterGraph.add_candidate('nasw', 10, 5)
 
-max_followers = 10
+max_followers = 15
+max_tweets = 10
 max_follower_friends = 5
 
 if os.path.isfile("twitterGraph.pickle"):
@@ -26,4 +28,10 @@ topicInfluence = TopicInfluence(twitterGraph)
 
 res = twitterInstance.api.get_user('nasw')
 
-print(topicInfluence.compute_rank(10, [res.id]))
+topicInfluence.compute_rank(max_tweets, [res.id])
+
+moi = MOI(twitterGraph)
+
+print(moi.fetch_moi_score(res.id, max_tweets))
+
+

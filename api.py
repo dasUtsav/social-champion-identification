@@ -136,5 +136,9 @@ def getRank():
     
     return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
 
+@app.route('/rank/graphs')
+def graphs():
+    return render_template('graphs.html')
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8000, debug=True)

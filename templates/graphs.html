@@ -1,0 +1,21 @@
+{% extends 'index.html' %} 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"> {% endblock %}
+
+{% block body %}
+    <div class="container topic_name">
+        <h1 class="text-center">Topic_Name</h1>
+
+        <div class="container alert alert-primary userBox">
+            <p> <span><img class="profile_image"src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTF_erFD1SeUnxEpvFjzBCCDxLvf-wlh9ZuPMqi02qGnyyBtPWdE-3KoH3s"
+                height="60em" width="60em" alt="TEST"></span> <span style="font-size:2em">Candidate</span></p>
+        </div>
+        <div class="graphs">
+            <h3>Time Series of Retweets over time</h3>
+            <img src="https://pbs.twimg.com/media/DTK2_qnX0AAYX7q.jpg" alt="tatti">
+            <h3>Time Series of favourite Count over time</h3>
+            <img src="https://pbs.twimg.com/media/DTK2_qnX0AAYX7q.jpg" alt="tatti">
+        </div>
+    </div>
+
+{% endblock %}

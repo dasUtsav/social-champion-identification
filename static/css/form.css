@@ -1,4 +1,4 @@
-.leaderboard,{
+.leaderboard, .topic_name{
     margin-top: 20px;
     margin-bottom: 20px;
 }
@@ -9,7 +9,7 @@
     text-align: left;
 }
 
-.leaderboard .profile_image {
+.profile_image {
     border-radius: 50%; 
     border: 2px solid red; 
     margin-right: 1em;
@@ -24,3 +24,11 @@
     width: 100%;
 }
 
+.leaderboard .links{
+    text-decoration: none;
+    color: black;
+}
+
+.userBox{
+    padding-left: 4em;
+}

@@ -57,11 +57,18 @@
 
 
                             {% for dict_item in data['rank_list'] %}
+                            
                             <tr>
                                 <td>{{dict_item['rank']}}</td>
-                                <td>
-                                    <img class="profile_image" src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTF_erFD1SeUnxEpvFjzBCCDxLvf-wlh9ZuPMqi02qGnyyBtPWdE-3KoH3s"
-                                        height="50em" width="50em" alt="TEST">{{dict_item['name']}}</td>
+                               
+                                    <td> 
+                                        <a href="/rank/graphs" class="links">
+                                            <img class="profile_image" src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTF_erFD1SeUnxEpvFjzBCCDxLvf-wlh9ZuPMqi02qGnyyBtPWdE-3KoH3s"
+                                                height="50em" width="50em" alt="TEST">{{dict_item['name']}}
+                                        </a>
+                                    </td>
+                                
+                                
                             </tr>
                             {% endfor %}
                         </tbody>

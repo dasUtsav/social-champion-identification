@@ -52,11 +52,12 @@ class TwitterGraph:
             for tweet in tweets:
                 mongo.twitterCollection.insert(tweet.__dict__)
             self.G.node[screen_id]['isRetrieve'] = True
+            tweets_text = [tweet.message for tweet in tweets]
             self.write_pickle()
         else:
             tweets = mongo.twitterCollection.find({'id': screen_id})
             tweets = [tweet for tweet in tweets]
-        tweets_text = [tweet['message'] for tweet in tweets]
+            tweets_text = [tweet['message'] for tweet in tweets]
         text_retrieve = Text_retrieve(tweets)
         tweet_doc = text_retrieve.lemmatize()
         return tweet_doc
@@ -79,6 +80,16 @@ class TwitterGraph:
         corpus = [dictionary.doc2bow(text) for text in doc]
         model = ldamodel.LdaModel(corpus, num_topics=10, id2word = dictionary)
         return model, dictionary
+
+    def reset_prop(self, prop):
+        for node in self.G.nodes():
+            self.G.node[node][prop] = {}
+
+    def resetRefetch(self):
+        for node in self.G.nodes():
+            self.G.node[node]['isRetrieve'] = False
+        mongo.twitterCollection.remove()
+        self.write_pickle()
 
         
 

@@ -1,6 +1,7 @@
 .leaderboard, .topic_name{
     margin-top: 20px;
     margin-bottom: 20px;
+    
 }
 
 
@@ -32,3 +33,20 @@
 .userBox{
     padding-left: 4em;
 }
+
+.flex-container{
+    display: flex;
+    /* justify-content:center; */
+    flex-wrap: wrap;
+    
+}
+
+.box{
+    /* flex-grow: 1; */
+    /* min-height: 490px; */
+    margin: 0 1em;
+    min-width: 200px; 
+    height: 490px;
+}
+
+

@@ -1,9 +1,12 @@
 import networkx as nx
 import mongo
+import json
 from text_cleansing_step1 import Text_retrieve
 from Instances import twitterInstance
 from gensim.models import ldamodel
 from gensim import corpora
+
+config = json.load(open("config.json", 'r'))
 
 class TwitterGraph:
 
@@ -84,26 +87,27 @@ class TwitterGraph:
 
     def set_tweet_doc(self, screen_id, max_tweets):
         tweet_doc = self.fetch_tweets(screen_id, max_tweets)
-        self.G.node[screen_id]['tweet_doc'] = [word for tweet in tweet_doc for word in tweet]
+        # self.G.node[screen_id]['tweet_doc'] = [word for tweet in tweet_doc for word in tweet]
+        self.G.node[screen_id]['tweet_doc'] = tweet_doc
         return tweet_doc
 
-    def set_model(self, screen_name, max_tweets, setTweetDoc=False):
+    def set_model(self, screen_name, max_tweets, fetchTweetDoc=False):
         res = twitterInstance.api.get_user(screen_name)
-        if setTweetDoc is True:
+        if fetchTweetDoc is True:
             tweet_doc = self.set_tweet_doc(res.id, max_tweets)
         else:   
-            tweet_doc = self.fetch_tweets(res.id, max_tweets)
+            tweet_doc = self.G.node[res.id]['tweet_doc']
         self.model, self.dictionary = self.createModel(tweet_doc)
 
     def createModel(self, doc):
         dictionary = corpora.Dictionary(doc)
         corpus = [dictionary.doc2bow(text) for text in doc]
-        model = ldamodel.LdaModel(corpus, num_topics=10, id2word = dictionary)
+        model = ldamodel.LdaModel(corpus, num_topics=config["topicModeling"]["num_topics"], id2word = dictionary)
         return model, dictionary
 
-    def reset_prop(self, prop):
+    def reset_prop(self, prop, value):
         for node in self.G.nodes():
-            self.G.node[node][prop] = {}
+            self.G.node[node][prop] = value
 
     def resetRefetch(self):
         for node in self.G.nodes():

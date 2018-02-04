@@ -37,9 +37,9 @@ class LSIModeling:
             return -1
     
     def topicDist(self, docs):
-        textAndNoise = Text_retrieve(docs)
-        lemmatized = textAndNoise.lemmatize()
-        doc_dictionary = corpora.Dictionary(lemmatized)
+        # textAndNoise = Text_retrieve(docs)
+        # lemmatized = textAndNoise.lemmatize()
+        doc_dictionary = corpora.Dictionary(docs)
         doc_bow = [doc_dictionary.doc2bow(text) for text in lemmatized]
         doc_sample = []
         topicVar = {}

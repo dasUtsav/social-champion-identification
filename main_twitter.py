@@ -3,6 +3,7 @@ from classes.TwitterGraph import TwitterGraph
 from classes.TopicInfluence import TopicInfluence
 from classes.MOI import MOI
 from Instances import twitterInstance
+from topic_modeling import LSIModeling
 
 
 twitterGraph = TwitterGraph("twitterGraph.pickle")
@@ -18,20 +19,46 @@ if os.path.isfile("twitterGraph.pickle"):
 else:
     twitterGraph.add_candidate('nasw', max_followers, max_follower_friends)
 
+screen_names = ["nasw", "meganneiljourno", "laurakatebanks", "mike_salter"]
+
+# for screen_name in screen_names:
+#     twitterGraph.add_candidate(screen_name, max_followers, max_follower_friends)
 ## Run this if you wanna reset the db
 # twitterGraph.resetRefetch()
 
 ## Run in order to reset the tweet_doc prop
-# twitterGraph.reset_prop('tweet_doc')
+# twitterGraph.reset_prop('tweet_doc', [])
 
 topicInfluence = TopicInfluence(twitterGraph)
 
-res = twitterInstance.api.get_user('nasw')
+candidates = []
 
-topicInfluence.compute_rank(max_tweets, [res.id])
+for screen_name in screen_names:
+    res = twitterInstance.api.get_user(screen_name)
+    candidates.append(res.id)
+
+ranks = topicInfluence.compute_rank(max_tweets, candidates)
+
+twitterGraph.reset_prop('tweet_doc', [])
 
 moi = MOI(twitterGraph)
 
-print(moi.fetch_moi_score(res.id, max_tweets))
+for candidate in candidates:
+    dictionary = filter(lambda rank: rank['node'] == candidate, ranks)
+    for dict in dictionary:
+        dict["moiScore"] = moi.fetch_moi_score(candidate, max_tweets)
+
+for rank in ranks:
+    twitterGraph.G.node[rank['node']]['moiScore'] = rank['moiScore']
+    twitterGraph.G.node[rank['node']]['influence'] = rank['influence']
+
+twitterGraph.write_pickle()
+print(ranks)
+
+# tweet_doc = twitterGraph.fetch_tweets(res.id, max_tweets)
+
+# lsimodel = LSIModeling()
+# lsimodel.train(tweet_doc, 10, 10)
+
 
 

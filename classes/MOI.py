@@ -10,6 +10,7 @@ class MOI:
         followers_count = self.twitterGraph.G.node[screen_id]['followers_count']
         favourites, retweets = self.twitterGraph.fetch_favourites(screen_id, max_tweets)
         favourites, retweets = np.array(favourites), np.array(retweets)
+        print(favourites, retweets, followers_count)
         roa = (favourites + retweets) / followers_count
         moi = np.linalg.norm(roa, 2) / (math.sqrt(len(roa)))
         return moi

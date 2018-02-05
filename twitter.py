@@ -3,6 +3,7 @@ import tweepy, json
 class Tweet:
     def __init__(self, dict_tweet):
         self.favourite_count = dict_tweet['favorite_count']
+        self.user_id = dict_tweet['user']['id']
         self.retweet_count = dict_tweet['retweet_count']
         self.hashtags = dict_tweet['entities']['hashtags']
         self.user_mentions = dict_tweet['entities']['user_mentions']
@@ -12,18 +13,43 @@ class Tweet:
         self.follower_count = dict_tweet['user']['followers_count']
         self.isRetweet = 1 if 'retweeted_status' in dict_tweet else 0
 
+class User:
+    def __init__(self, dict_tweet):
+        self.profile_image_url = dict_tweet["profile_image_url"]
+        self.status_count = dict_tweet["statuses_count"]
+        self.screen_name = dict_tweet["screen_name"]
+        self.followers_count = dict_tweet["followers_count"]
+        self.id = dict_tweet["id"]
+
 class Twitter:
 
     def __init__(self, consumer_key, consumer_secret, access_token, access_token_secret):
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
-        self.api = tweepy.API(auth)
+        self.api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
     
     def fetchTweets(self, handle, limit=5):
         tweets = []
-        for status in tweepy.Cursor(self.api.user_timeline, id=handle, tweet_mode='extended').items(limit):
-            tweet = Tweet(status._json)
-            tweets.append(tweet)
+        try:
+            for status in tweepy.Cursor(self.api.user_timeline, id=handle, tweet_mode='extended').items(limit):
+                tweet = Tweet(status._json)
+                tweets.append(tweet)
+        except:
+            tweets = []
         return tweets
+
+    def fetchFollowers(self, handle, limit=5):
+        users = []
+        for user in tweepy.Cursor(self.api.followers, id=handle).items(limit):
+            user = User(user._json)
+            users.append(user)
+        return users
+    
+    def fetchFriends(self, handle, limit=5):
+        users = []
+        for user in tweepy.Cursor(self.api.friends, id=handle).items(limit):
+            user = User(user._json)
+            users.append(user)
+        return users
 
 

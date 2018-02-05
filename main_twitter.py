@@ -1,58 +1,65 @@
 import os
-import pickle
-import json
-from twitter import Twitter
-from text_cleansing_step1 import Text_retrieve
-from topic_modeling import LSIModeling
-from elasticsearch import Elasticsearch
+from classes.TwitterGraph import TwitterGraph
+from classes.TopicInfluence import TopicInfluence
+from classes.MOI import MOI
+from Instances import twitterInstance
+from topic_modeling import LDAModeling
 
-config = json.load(open("config.json", 'r'))
 
-# Twitter api credentials
+twitterGraph = TwitterGraph("twitterGraph.pickle")
 
-twitterCredentials = config['twitter']
+# twitterGraph.add_candidate('nasw', 10, 5)
 
-consumer_key = twitterCredentials['consumer_key']
-consumer_secret = twitterCredentials['consumer_secret']
-access_token = twitterCredentials['access_token']
-access_token_secret = twitterCredentials['access_token_secret']
+max_followers = 15
+max_tweets = 10
+max_follower_friends = 5
 
-# Defining twitter object
-
-twitterEg = Twitter(consumer_key, consumer_secret, access_token, access_token_secret)
-
-save = 'tweets.pickle'
-
-# If the pickle file exists for the tweets, fetch the same directly, else fetch from api
-
-if os.path.exists(os.path.join(os.path.dirname('__file__'), save)):
-    with open(save, 'rb') as f:
-        tweets = pickle.load(f)
+if os.path.isfile("twitterGraph.pickle"):
+    twitterGraph.load_pickle()
 else:
-    tweets = twitterEg.fetchTweets('nasw', limit=1000)
-    with open(save, 'wb') as f:
-        pickle.dump(tweets, f)
+    twitterGraph.add_candidate('nasw', max_followers, max_follower_friends)
 
-textAndNoise = Text_retrieve(tweets)
+screen_names = ["nasw", "meganneiljourno", "laurakatebanks", "mike_salter"]
 
-lemmatized = textAndNoise.lemmatize()
+# for screen_name in screen_names:
+#     twitterGraph.add_candidate(screen_name, max_followers, max_follower_friends)
+## Run this if you wanna reset the db
+# twitterGraph.resetRefetch()
 
-lsimodel = LSIModeling()
-lsimodel.train(lemmatized, num_topics=20)
+## Run in order to reset the tweet_doc prop
+# twitterGraph.reset_prop('tweet_doc', [])
 
-with open('lsimodel.pickle', 'wb') as f:
-    pickle.dump(lsimodel, f)
+topicInfluence = TopicInfluence(twitterGraph)
 
-# elasticConfig = config['elasticsearch']
+candidates = []
 
-# es = Elasticsearch([{'host': elasticConfig['host'], 'port': elasticConfig['port']}])
+for screen_name in screen_names:
+    res = twitterInstance.api.get_user(screen_name)
+    candidates.append(res.id)
 
-# index = elasticConfig['index']
-# doc_type = elasticConfig['doc_type']
+# ranks = topicInfluence.compute_rank(max_tweets, candidates)
 
-# if not es.indices.exists(index):
-#     print("creating index")
-#     for i in range(len(lsimodel.topics)):
-#         es.create(index=index, doc_type=doc_type, id=i+1, body={"content": str(lsimodel.topics[i])})
+# twitterGraph.reset_prop('tweet_doc', [])
 
-    
+# moi = MOI(twitterGraph)
+
+# for candidate in candidates:
+#     dictionary = filter(lambda rank: rank['node'] == candidate, ranks)
+#     for dict in dictionary:
+#         dict["moiScore"] = moi.fetch_moi_score(candidate, max_tweets)
+
+# for rank in ranks:
+#     twitterGraph.G.node[rank['node']]['moiScore'] = rank['moiScore']
+#     twitterGraph.G.node[rank['node']]['influence'] = rank['influence']
+
+# twitterGraph.write_pickle()
+
+tweet_doc = twitterGraph.fetch_tweets(candidates[0], max_tweets)
+
+ldamodel = LDAModeling()
+ldamodel.train(tweet_doc, num_topics=10, num_passes=15)
+
+print(ldamodel.topicDist(tweet_doc))
+
+
+

@@ -3,12 +3,16 @@ import mongo
 import pickle
 import math
 import pandas as pd
+import bcrypt
 from operator import itemgetter
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, url_for, session    
 from twitter import Twitter
 from collections import namedtuple
 from elasticsearch import Elasticsearch
 from ranking import Ranking
+
+
+
 
 config = json.load(open("config.json", 'r'))
 
@@ -28,7 +32,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def success():
-    return render_template('landing.html')
+    if 'username' in session:
+        return render_template('landing.html')
+    return redirect(url_for('login'))
+        
 
 @app.route('/check', methods=['POST'])
 def check():
@@ -136,5 +143,39 @@ def getRank():
     
     return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
 
+@app.route('/rank/graphs')
+def graphs():
+    return render_template('graphs.html')
+
+@app.route('/login', methods = ["POST", "GET"])
+def login():
+    if request.method == "POST":
+        user = mongo.loginCollection
+        login_user = user.find_one({ 'name' : request.form['username']})
+
+        if login_user:
+            print(login_user)
+            if bcrypt.hashpw(request.form["pwd"].encode('utf-8'), login_user["password"]) == login_user["password"]:
+                session['username'] = request.form['username']
+                redirect(url_for('success'))
+        return "Invalid username/password combination"
+    return render_template("login.html")
+
+@app.route('/register', methods = ["POST" , "GET"])
+def register():
+    if request.method == "POST":
+        users = mongo.loginCollection
+        exist = users.find_one({ 'name' : request.form['username']})
+        
+        if exist is None:
+            hashpass = bcrypt.hashpw(request.form['pwd'].encode('utf-8'),bcrypt.gensalt())
+            mongo.loginCollection.insert({ 'name' : request.form['username'] , 'password' : hashpass})
+            session["username"] = request.form['username']
+            return redirect(url_for("success"))
+        return "Username already exist" 
+    
+    return render_template('register.html')
+
 if __name__ == '__main__':
+    app.secret_key = "mysecret"
     app.run(host='127.0.0.1', port=8000, debug=True)

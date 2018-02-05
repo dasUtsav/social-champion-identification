@@ -1,24 +1,18 @@
- {% extends 'index.html' %} 
-
- {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
- {% endblock %}
- 
- {% block body %}
+ {% extends 'index.html' %} {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"> {% endblock %} {% block body %}
 
 <div class="container text-center" style="padding: 50px 0px 100px 0px">
 
     {% if final_ranks is defined %}
     <div class="row">
-        <div class="col-sm-12">
-                <p>
-                    {% for pending_topic in pending_topics %}
-                        {{pending_topic.capitalize()}}, 
-                    {% endfor %}
-
-                    is not present in the training corpus at the moment. We will revert back shortly! :)
-                </p>
-            
+        <div class="col-sm-12 alert alert-info alert-dismissible fade show" role="alert">
+            <p>
+                {% for pending_topic in pending_topics %} {{pending_topic.capitalize()}}, {% endfor %} is not present in the training corpus
+                at the moment. We will revert back shortly! :)
+            </p>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     </div>
 
@@ -36,45 +30,62 @@
 
             <select class="" id="sbTwo" multiple="multiple"></select>
             <br>
-                    
-        <div class="btn-group">
-            <input class="btn btn-secondary" type="button" id="left" value="<"/>
-            <input class="btn btn-secondary" type="button" id="right" value=">"/>
-            <input class="btn btn-secondary" type="button" id="leftall" value="<<"/>
-            <input class="btn btn-secondary" type="button" id="rightall" value=">>"/>
+3
+            <div class="btn-group">
+                <input class="btn btn-secondary" type="button" id="left" value="<" />
+                <input class="btn btn-secondary" type="button" id="right" value=">" />
+                <input class="btn btn-secondary" type="button" id="leftall" value="<<" />
+                <input class="btn btn-secondary" type="button" id="rightall" value=">>" />
+            </div>
+            <input class="btn btn-success" id="queryForm" type="button" value="Filter" id="submit" />
         </div>
-        <input class="btn btn-success" id="queryForm" type="button" value="Filter" id="submit" />
+
+            <div class="col-sm-9">
+                <h2 class="text-center">Leaderboard</h2>
+                <div class="flex-container">
+                
+                
+                    {% for data in final_ranks %}
+                    
+                    <div class="box">
+                        <!-- <h3 class="query">{{data['query'].capitalize()}}</h3> -->
+                        <table class="table table-striped leaderboard">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">{{data['query'].capitalize()}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+
+                                {% for dict_item in data['rank_list'] %}
+                                
+                                <tr>
+                                    <td>{{dict_item['rank']}}</td>
+                                
+                                        <td> 
+                                            <a href="/rank/graphs" class="links">
+                                                <img class="profile_image" src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTF_erFD1SeUnxEpvFjzBCCDxLvf-wlh9ZuPMqi02qGnyyBtPWdE-3KoH3s"
+                                                    height="50em" width="50em" alt="TEST">{{dict_item['name']}}
+                                            </a>
+                                        </td>
+                                    
+                                    
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+                    {% endfor %}
+                </div>   
+            </div>
+        
     </div>
 
-    <div class="col-sm-9">
-        <h2>Leaderboard</h2>
-        {% for data in final_ranks %}
-        <h3 class="query">{{data['query'].capitalize()}}</h3>
-        <table class="table table-striped leaderboard">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Rank</th>
-                </tr>
-            </thead>
-            <tbody>
-
-
-                {% for dict_item in data['rank_list'] %}
-                <tr>
-                    <td>{{dict_item['name']}}</td>
-                    <td>{{dict_item['rank']}}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% endfor %}
-    </div>
-</div>
-
-{% else %}
-<h1>Please Enter a query to get the leaderboard.</h1>
-{% endif %}
+    {% else %}
+    <h1>Please Enter a query to get the leaderboard.</h1>
+    {% endif %}
 
 
 

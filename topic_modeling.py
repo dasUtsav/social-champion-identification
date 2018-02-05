@@ -1,17 +1,17 @@
 import json
 import pandas as pd
 from gensim import corpora
-from gensim.models import lsimodel
+from gensim.models import ldamodel
 from elasticsearch import Elasticsearch
 from text_cleansing_step1 import Text_retrieve
 from textblob import TextBlob
 
-class LSIModeling:
+class LDAModeling:
 
-    def train(self, texts, num_topics=5, num_words=10):
+    def train(self, texts, num_topics=5, num_words=10, num_passes=1):
         dictionary = corpora.Dictionary(texts)
         corpus = [dictionary.doc2bow(text) for text in texts]
-        self.model = lsimodel.LsiModel(corpus, num_topics=num_topics, id2word = dictionary)
+        self.model = ldamodel.LdaModel(corpus, num_topics=num_topics, id2word = dictionary, passes=num_passes)
         self.topics = []
         for topic in self.model.print_topics(num_topics=num_topics, num_words=num_words):
             self.topics.append(topic)
@@ -39,8 +39,10 @@ class LSIModeling:
     def topicDist(self, docs):
         # textAndNoise = Text_retrieve(docs)
         # lemmatized = textAndNoise.lemmatize()
+        docs = [[word for tweet in docs 
+              for word in tweet]]
         doc_dictionary = corpora.Dictionary(docs)
-        doc_bow = [doc_dictionary.doc2bow(text) for text in lemmatized]
+        doc_bow = [doc_dictionary.doc2bow(text) for text in docs]
         doc_sample = []
         topicVar = {}
         for topic in self.model[doc_bow]:
@@ -48,9 +50,8 @@ class LSIModeling:
             doc_sample.append(sample)
             topicVar = topic
 
-        sentiment = [self.analyze_sentiment(" ".join(tweet)) for tweet in lemmatized]
         doc_topic_dist = pd.DataFrame(doc_sample,columns=[a for (a,b) in topicVar])
-        return doc_topic_dist, sentiment
+        return doc_topic_dist
 
 
 

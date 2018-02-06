@@ -13,5 +13,4 @@ class Ranking:
         for filter in filters:
             weightages[filter] = 1 / 3
             self.dataframe['rank'] += self.dataframe[filter] * weightages[filter]
-        
-        print(self.dataframe)
+        self.dataframe = self.dataframe.sort_values(['rank'], ascending=0)

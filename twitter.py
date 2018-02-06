@@ -16,7 +16,7 @@ class Tweet:
 class User:
     def __init__(self, dict_tweet):
         self.profile_image_url = dict_tweet["profile_image_url"]
-        self.status_count = dict_tweet["statuses_count"]
+        self.statuses_count = dict_tweet["statuses_count"]
         self.screen_name = dict_tweet["screen_name"]
         self.followers_count = dict_tweet["followers_count"]
         self.id = dict_tweet["id"]
@@ -37,6 +37,11 @@ class Twitter:
         except:
             tweets = []
         return tweets
+
+    def fetchUser(self, screen_name):
+        user = self.api.get_user(screen_name)
+        user = User(user._json)
+        return user
 
     def fetchFollowers(self, handle, limit=5):
         users = []

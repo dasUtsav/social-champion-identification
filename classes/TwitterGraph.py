@@ -5,6 +5,7 @@ from text_cleansing_step1 import Text_retrieve
 from Instances import twitterInstance
 from gensim.models import ldamodel
 from gensim import corpora
+from twitter import User
 
 config = json.load(open("config.json", 'r'))
 
@@ -31,7 +32,7 @@ class TwitterGraph:
         for user in users:
             if not user.id in self.G.nodes():
                 self.G.add_node(user.id, similarity = {})
-            self.G.add_node(user.id, status_count = user.status_count, 
+            self.G.add_node(user.id, status_count = user.statuses_count, 
                             screen_name = user.screen_name,
                             followers_count = user.followers_count,
                             isRetrieve = False)
@@ -46,7 +47,7 @@ class TwitterGraph:
                 if not friend.id in self.G.nodes():
                     self.G.add_node(friend.id, similarity = {})
                 self.G.add_node(friend.id, 
-                                status_count = friend.status_count, 
+                                status_count = friend.statuses_count, 
                                 screen_name = friend.screen_name,
                                 followers_count = user.followers_count,
                                 isRetrieve = False)
@@ -64,6 +65,19 @@ class TwitterGraph:
         text_retrieve = Text_retrieve(tweets)
         tweet_doc = text_retrieve.lemmatize()
         return tweet_doc
+
+    def fetch_user(self, screen_name=None, id=None):
+        assert (id is not None or screen_name is not None)
+        print("id is", id)
+        userMongo = mongo.usersCollection.find({'$or':[ {'screen_name':screen_name}, {'id':id}]})
+        if userMongo.count() == 0:
+            screen_name = screen_name if screen_name is not None else id
+            user = twitterInstance.fetchUser(screen_name)
+            mongo.usersCollection.insert(user.__dict__)
+        else:
+            user = [user for user in userMongo]
+            user = User(user[0])
+        return user
 
     def fetch_and_store(self, screen_id, max_tweets):
         tweets = twitterInstance.fetchTweets(screen_id, max_tweets)

@@ -25,7 +25,7 @@ class TopicInfluence:
 
     def compute_rank(self, max_tweets, center_nodes = [], gamma=1):
         node_array = self.getNodeArray(center_nodes)
-        num_topics = config["topicModeling"]["num_topics"]
+        num_topics = config["topic_modeling"]["num_topics"]
         rank_vector_len = len(node_array)
         final_rank_vector = np.array([0 for a in range(0, rank_vector_len)])
         for topic_number in range(0, num_topics):

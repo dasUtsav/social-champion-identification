@@ -1,12 +1,20 @@
 import json
 import pandas as pd
+import pickle
 from gensim import corpora
 from gensim.models import ldamodel
 from elasticsearch import Elasticsearch
+from elasticsearch.client import IndicesClient
 from text_cleansing_step1 import Text_retrieve
 from textblob import TextBlob
 
+config = json.load(open("config.json", 'r'))
+elasticConfig = config['elasticsearch']
+
 class LDAModeling:
+
+    def __init__(self, filename):
+        self.filename = filename
 
     def train(self, texts, num_topics=5, num_words=10, num_passes=1):
         dictionary = corpora.Dictionary(texts)
@@ -18,7 +26,6 @@ class LDAModeling:
     
     def index(self):
         config = json.load(open("config.json", 'r'))
-        elasticConfig = config['elasticsearch']
         self.es = Elasticsearch([{'host': elasticConfig['host'], 'port': elasticConfig['port']}])
         index = elasticConfig['index']
         doc_type = elasticConfig['doc_type']
@@ -26,6 +33,37 @@ class LDAModeling:
             print("creating index")
             for i in range(len(self.topics)):
                 self.es.create(index=index, doc_type=doc_type, id=i+1, body={"content": str(self.topics[i])})
+
+    def updateIndices(self):
+        index = elasticConfig['index']
+        doc_type = elasticConfig['doc_type']
+        for i in range(len(self.topics)):
+            self.es.update(index=index, doc_type=doc_type, id=i+1, body={"gg": "wp"})
+
+    def deleteIndex(self):
+        self.es = Elasticsearch([{'host': elasticConfig['host'], 'port': elasticConfig['port']}])
+        esIndices = IndicesClient(self.es)
+        index = elasticConfig['index']
+        doc_type = elasticConfig['doc_type']
+        esIndices.delete(index=index)
+
+    def search(self, query):
+        res = self.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
+        if not res['hits']['hits']:
+            return False
+        id = int(res['hits']['hits'][0]['_id'])
+        return id
+
+    def saveAsPickle(self):
+        topic_model_list = [self.model, self.topics]
+        with open(self.filename, 'wb') as pickleFile:
+            pickle.dump(topic_model_list, pickleFile)
+    
+    def loadPickle(self):
+        with open(self.filename, 'rb') as pickleFile:
+            topic_model_list = pickle.load(pickleFile)
+            self.model = topic_model_list[0]
+            self.topics = topic_model_list[1]
 
     def analyze_sentiment(self, tweet):
         analysis = TextBlob(tweet)

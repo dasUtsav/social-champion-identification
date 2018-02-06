@@ -102,7 +102,7 @@ class TwitterGraph:
     def createModel(self, doc):
         dictionary = corpora.Dictionary(doc)
         corpus = [dictionary.doc2bow(text) for text in doc]
-        model = ldamodel.LdaModel(corpus, num_topics=config["topicModeling"]["num_topics"], id2word = dictionary)
+        model = ldamodel.LdaModel(corpus, num_topics=config["topic_modeling"]["num_topics"], id2word = dictionary)
         return model, dictionary
 
     def reset_prop(self, prop, value):

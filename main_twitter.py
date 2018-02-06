@@ -56,10 +56,12 @@ for screen_name in screen_names:
 
 tweet_doc = twitterGraph.fetch_tweets(candidates[0], max_tweets)
 
-ldamodel = LDAModeling()
-ldamodel.train(tweet_doc, num_topics=10, num_passes=15)
+ldamodel = LDAModeling("ldamodel.pickle")
+ldamodel.loadPickle()
 
-print(ldamodel.topicDist(tweet_doc))
+# ldamodel.train(tweet_doc, num_topics=10, num_passes=15)
+
+# ldamodel.saveAsPickle()
 
 
 

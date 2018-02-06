@@ -1,86 +1,76 @@
 import json
-import mongo
 import pickle
 import math
 import pandas as pd
 import bcrypt
+import os
+import mongo
 from operator import itemgetter
 from flask import Flask, request, render_template, redirect, url_for, session    
 from twitter import Twitter
 from collections import namedtuple
 from elasticsearch import Elasticsearch
 from ranking import Ranking
-
-
-
+from classes.TwitterGraph import TwitterGraph
+from Instances import ldamodelInstance
 
 config = json.load(open("config.json", 'r'))
 
-twitterCredentials = config['twitter']
-consumer_key = twitterCredentials['consumer_key']
-consumer_secret = twitterCredentials['consumer_secret']
-access_token = twitterCredentials['access_token']
-access_token_secret = twitterCredentials['access_token_secret']
 
+twitterGraph = TwitterGraph("twitterGraph.pickle")
+if os.path.isfile("twitterGraph.pickle"):
+    twitterGraph.load_pickle()
+else:
+    twitterGraph.add_candidate('nasw', max_followers, max_follower_friends)
+    twitterGraph.save_pickle()
 
-with open('lsimodel.pickle', 'rb') as f:
-    lsimodel = pickle.load(f)
-lsimodel.index()
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def success():
-    if 'username' in session:
-        return render_template('landing.html')
-    return redirect(url_for('login'))
+    return render_template('landing.html')
+    # if 'username' in session:
+    #     return render_template('landing.html')
+    # return redirect(url_for('login'))
         
 
-@app.route('/check', methods=['POST'])
-def check():
-    flag = False
+@app.route('/addtopics', methods=['POST'])
+def addTopics():
+
     interest_list = []
     
     elasticConfig = config['elasticsearch']
     interests = [request.form[key] for key in request.form.keys()]
     for item in interests:
         topic = { 'name' : item, 'isPresent': False}
-        res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": item}}})
-        if res['hits']['hits']:
+        res = ldamodelInstance.search(item)
+        if res is not False:
             topic['isPresent'] = True
-            flag = True
         interest_list.append(topic)
-
-    # print(interest_list)
+        print(interest_list)
+    print(interest_list)
 
     for interest in interest_list:
-        mongo.topicCollection.insert(interest)
+        mongo.topicCollection.update({
+            'name': interest['name']
+            }, interest
+             , True)
 
-    if flag is True:
-        return render_template('upload_candidates.html')
-    else:
-        return "We will now train our solution in these domains. We will revert back to you shortly!"
+    return render_template('upload_candidates.html')
             
 @app.route('/addprofile', methods=['POST'])
 def addProfile():
-    # profile = request.form['profile']
     if 'handles' not in request.files:
         flash('No handles part')
         return redirect(request.url)
+    twitterFetch = config["twitterFetch"]
     csvFile = pd.read_csv(request.files['handles'])
     handles = csvFile['Handle'].tolist()
     for profile in handles:
-        twitterEg = Twitter(consumer_key, consumer_secret, access_token, access_token_secret)
-        tweets = twitterEg.fetchTweets(profile, limit=10)
-        for tweet in tweets:
-            mongo.twitterCollection.insert(tweet.__dict__)
-        mongo.usersCollection.update({
-            'screen_name': tweet.screen_name
-        }, {
-            'screen_name': tweet.screen_name,
-            'follower_count': tweet.follower_count
-        }, True)
+        twitterGraph.add_candidate(profile, twitterFetch["max_followers"], 
+                                   twitterFetch["max_follower_friends"])
     return redirect("/rank", code=200)
 
 @app.route('/rank', methods=['GET', 'POST'])
@@ -118,9 +108,8 @@ def getRank():
         query = query_dict['name']
         for screened_tweet in screened_tweets:
             tweets = screened_tweet['tweets']
-            doc_topic_dist, sentiment = lsimodel.topicDist(tweets)
-            res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
-            id = int(res['hits']['hits'][0]['_id'])
+            doc_topic_dist, sentiment = ldamodelInstance.topicDist(tweets)
+            id = ldamodelInstance.search(query)
             topic_relevance = doc_topic_dist[id]
             ranking = Ranking(tweets, topic_relevance, sentiment)
             if len(filters) != 0:

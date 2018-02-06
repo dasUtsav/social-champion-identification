@@ -37,27 +37,27 @@ for screen_name in screen_names:
     res = twitterInstance.api.get_user(screen_name)
     candidates.append(res.id)
 
-# ranks = topicInfluence.compute_rank(max_tweets, candidates)
+ranks = topicInfluence.compute_rank(max_tweets, candidates)
 
-# twitterGraph.reset_prop('tweet_doc', [])
+moi = MOI(twitterGraph)
 
-# moi = MOI(twitterGraph)
+for candidate in candidates:
+    result = filter(lambda rank: rank['node'] == candidate, ranks)
+    for res in result:
+        res["moiScore"] = moi.fetch_moi_score(candidate, max_tweets)
 
-# for candidate in candidates:
-#     dictionary = filter(lambda rank: rank['node'] == candidate, ranks)
-#     for dict in dictionary:
-#         dict["moiScore"] = moi.fetch_moi_score(candidate, max_tweets)
+for rank in ranks:
+    twitterGraph.G.node[rank['node']]['moiScore'] = rank['moiScore']
+    twitterGraph.G.node[rank['node']]['influence'] = rank['influence']
 
-# for rank in ranks:
-#     twitterGraph.G.node[rank['node']]['moiScore'] = rank['moiScore']
-#     twitterGraph.G.node[rank['node']]['influence'] = rank['influence']
+twitterGraph.write_pickle()
 
 # twitterGraph.write_pickle()
 
-tweet_doc = twitterGraph.fetch_tweets(candidates[0], max_tweets)
+# tweet_doc = twitterGraph.fetch_tweets(candidates[0], max_tweets)
 
-ldamodel = LDAModeling("ldamodel.pickle")
-ldamodel.loadPickle()
+# ldamodel = LDAModeling("ldamodel.pickle")
+# ldamodel.loadPickle()
 
 # ldamodel.train(tweet_doc, num_topics=10, num_passes=15)
 

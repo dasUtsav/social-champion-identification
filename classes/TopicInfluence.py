@@ -23,7 +23,22 @@ class TopicInfluence:
             for (a, b) in topic:
                 self.twitterGraph.G.node[nodeId]['similarity'][a] = b
 
-    def compute_rank(self, max_tweets, center_nodes = [], gamma=1):
+    def compute_rank(self, max_tweets, center_nodes = [], gamma=1, force_fetch=False):
+        candidate_ranks = []
+        updated_center_nodes = list(center_nodes)
+        print(center_nodes)
+        if force_fetch is False:
+            for center_node in center_nodes:
+                if 'influence' in self.twitterGraph.G.node[center_node]:
+                    candidate_ranks.append({
+                        'node': center_node,
+                        'influence': self.twitterGraph.G.node[center_node]['influence']
+                    })
+                    updated_center_nodes.remove(center_node)
+        if len(updated_center_nodes) == 0:
+            return candidate_ranks
+        center_nodes = updated_center_nodes
+        print("Length is not 0")
         node_array = self.getNodeArray(center_nodes)
         num_topics = config["topic_modeling"]["num_topics"]
         rank_vector_len = len(node_array)
@@ -34,8 +49,6 @@ class TopicInfluence:
             for i in range(1, 10):
                 rank_vector = gamma * np.dot(probab_matrix, rank_vector)
             final_rank_vector = final_rank_vector + rank_vector
-        candidate_ranks = []
-        print(final_rank_vector)
         for center_node in center_nodes:
             index = node_array.index(center_node)
             candidate_ranks.append({
@@ -92,7 +105,6 @@ class TopicInfluence:
             #         self.twitterGraph.set_model(node2, max_tweets, fetchTweetDoc=False)
             #         self.calcSimilarity(node2)
             #         self.calcSimilarity(node1)
-            #         print(self.twitterGraph.G.node[node2])
             #         score = self.twitterGraph.G.node[node2]['status_count'] / neighSum * (1 - abs(self.twitterGraph.G.node[node1]['similarity'][topic_number] - self.twitterGraph.G.node[node2]['similarity'][topic_number]))
             #     else:
             #         score = 0

@@ -12,17 +12,27 @@ from collections import namedtuple
 from elasticsearch import Elasticsearch
 from ranking import Ranking
 from classes.TwitterGraph import TwitterGraph
-from Instances import ldamodelInstance
+from classes.TopicInfluence import TopicInfluence
+from classes.MOI import MOI
+from Instances import ldamodelInstance, twitterInstance
 
 config = json.load(open("config.json", 'r'))
 
 
 twitterGraph = TwitterGraph("twitterGraph.pickle")
+
 if os.path.isfile("twitterGraph.pickle"):
     twitterGraph.load_pickle()
 else:
     twitterGraph.add_candidate('nasw', max_followers, max_follower_friends)
     twitterGraph.save_pickle()
+
+topicInfluence = TopicInfluence(twitterGraph)
+moi = MOI(twitterGraph)
+
+
+#Config variables
+twitterFetch = config["twitterFetch"]
 
 
 app = Flask(__name__)
@@ -41,7 +51,6 @@ def addTopics():
 
     interest_list = []
     
-    elasticConfig = config['elasticsearch']
     interests = [request.form[key] for key in request.form.keys()]
     for item in interests:
         topic = { 'name' : item, 'isPresent': False}
@@ -49,8 +58,6 @@ def addTopics():
         if res is not False:
             topic['isPresent'] = True
         interest_list.append(topic)
-        print(interest_list)
-    print(interest_list)
 
     for interest in interest_list:
         mongo.topicCollection.update({
@@ -65,7 +72,6 @@ def addProfile():
     if 'handles' not in request.files:
         flash('No handles part')
         return redirect(request.url)
-    twitterFetch = config["twitterFetch"]
     csvFile = pd.read_csv(request.files['handles'])
     handles = csvFile['Handle'].tolist()
     for profile in handles:
@@ -75,10 +81,8 @@ def addProfile():
 
 @app.route('/rank', methods=['GET', 'POST'])
 def getRank():
-    elasticConfig = config['elasticsearch']
     topic_results = mongo.topicCollection.find()
     queries = [topic_result for topic_result in topic_results]
-    print(queries)
     filters = []
     if request.method == 'POST':
         filters = [request.form[key] for key in request.form.keys() if key != 'query']
@@ -88,49 +92,54 @@ def getRank():
     rank_list = []
     final_ranks = []
     screened_tweets = []
-    
+    screen_names = ["nasw", "meganneiljourno", "laurakatebanks", "mike_salter"]
+
+    candidates = []
+
     for screen_name in screen_names:
-        result = mongo.twitterCollection.find({'screen_name': screen_name['screen_name']})
-        tweets = []
-        for res in result:
-            tweets.append(res)
-        screened_tweets.append({
-            'screen_name': screen_name['screen_name'],
-            'tweets': tweets
-        })
+        res = twitterInstance.api.get_user(screen_name)
+        candidates.append({'id': res.id, 'screen_name': screen_name})
+
     for query_dict in queries:
-        print("Query_dict is:")
-        print(query_dict)
         if query_dict['isPresent'] == False:
             pending_topics.append(query_dict['name'])
-            continue
+            # continue
         rankings = []
         query = query_dict['name']
-        for screened_tweet in screened_tweets:
-            tweets = screened_tweet['tweets']
-            doc_topic_dist, sentiment = ldamodelInstance.topicDist(tweets)
-            id = ldamodelInstance.search(query)
-            topic_relevance = doc_topic_dist[id]
-            ranking = Ranking(tweets, topic_relevance, sentiment)
-            if len(filters) != 0:
-                ranking.rank(filters)
-            else:
-                ranking.rank()
-            followerCountScore = screen_name['follower_count'] / 10000
-            relevantTweetsCount = len(ranking.dataframe[ranking.dataframe['topic_relevance'] > 0])
-            frequency = (relevantTweetsCount / len(ranking.dataframe)) * math.log(len(ranking.dataframe + 1))
-            temp = { 'name' : screened_tweet['screen_name'] , 'rank' : ranking.dataframe['rank'].mean() + followerCountScore + frequency}
-            rankings.append(temp)
-        rank_list = sorted(rankings, key=itemgetter('rank'), reverse=True)
-        rank_list = rank_list[:5]
-        for index, ele in enumerate(rank_list):
-            ele['rank'] = index + 1
-        final_ranks.append({
-            'query': query,
-            'rank_list': rank_list
-        })
+        ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [
+                candidate['id'] for candidate in candidates])
+        for candidate in candidates:
+            result = filter(lambda rank: rank['node'] == candidate['id'], ranks)
+            for res in result:
+                res["moiScore"] = moi.fetch_moi_score(candidate['id'], twitterFetch["max_tweets"])
+                res["screen_name"] = candidate['screen_name']
+        ranking = Ranking(ranks)
+        ranking.rank()
+        # for screened_tweet in screened_tweets:
+        #     tweets = screened_tweet['tweets']
+        #     doc_topic_dist, sentiment = ldamodelInstance.topicDist(tweets)
+        #     id = ldamodelInstance.search(query)
+        #     topic_relevance = doc_topic_dist[id]
+        #     ranking = Ranking(tweets, topic_relevance, sentiment)
+        #     if len(filters) != 0:
+        #         ranking.rank(filters)
+        #     else:
+        #         ranking.rank()
+        #     followerCountScore = screen_name['follower_count'] / 10000
+        #     relevantTweetsCount = len(ranking.dataframe[ranking.dataframe['topic_relevance'] > 0])
+        #     frequency = (relevantTweetsCount / len(ranking.dataframe)) * math.log(len(ranking.dataframe + 1))
+        #     temp = { 'name' : screened_tweet['screen_name'] , 'rank' : ranking.dataframe['rank'].mean() + followerCountScore + frequency}
+        #     rankings.append(temp)
+        # rank_list = sorted(rankings, key=itemgetter('rank'), reverse=True)
+        # rank_list = rank_list[:5]
+        # for index, ele in enumerate(rank_list):
+        #     ele['rank'] = index + 1
+        # final_ranks.append({
+        #     'query': query,
+        #     'rank_list': rank_list
+        # })
     
-    return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
+    return render_template("form.html",final_ranks = [], pending_topics = pending_topics)
 
 @app.route('/rank/graphs')
 def graphs():

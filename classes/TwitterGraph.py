@@ -5,7 +5,7 @@ from text_cleansing_step1 import Text_retrieve
 from Instances import twitterInstance
 from gensim.models import ldamodel
 from gensim import corpora
-from twitter import User
+from twitter import User, Tweet
 
 config = json.load(open("config.json", 'r'))
 
@@ -89,17 +89,17 @@ class TwitterGraph:
         self.write_pickle()
         return tweets
 
-    def fetch_favourites(self, screen_id, max_tweets):
+    def fetch_favorites(self, screen_id, max_tweets):
         if self.G.node[screen_id]['isRetrieve'] == False:
             tweets = self.fetch_and_store(screen_id, max_tweets)
-            favourite_counts = [tweet.favourite_count for tweet in tweets]
-            retweet_counts = [tweet.retweet_count for tweet in tweets]
+            favorite_counts = [tweet.favorite_count for tweet in tweets]
+            retweet_counts = [{'count': tweet.retweet_count, 'isRetweet': tweet.isRetweet} for tweet in tweets]
         else:
             tweets = mongo.twitterCollection.find({'user_id': screen_id})
             tweets = [tweet for tweet in tweets]
-            favourite_counts = [tweet['favourite_count'] for tweet in tweets]
-            retweet_counts = [tweet['retweet_count'] for tweet in tweets]
-        return favourite_counts, retweet_counts
+            favorite_counts = [tweet['favorite_count'] for tweet in tweets]
+            retweet_counts = [{'count': tweet['retweet_count'], 'isRetweet': tweet['isRetweet']} for tweet in tweets]
+        return favorite_counts, retweet_counts
 
     def set_tweet_doc(self, screen_id, max_tweets):
         tweet_doc = self.fetch_tweets(screen_id, max_tweets)

@@ -89,7 +89,7 @@ def getRank():
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screen_names = ["kyoag"]
+    screen_names = ["kyoag", "ChildAbuse_Sol", "RMP21", "ms_tina_tina", "mike_salter"]
 
     candidates = []
 

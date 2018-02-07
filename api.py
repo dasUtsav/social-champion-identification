@@ -26,6 +26,7 @@ if os.path.isfile("twitterGraph.pickle"):
 else:
     twitterGraph.write_pickle()
 
+twitterGraph.resetRefetch()
 topicInfluence = TopicInfluence(twitterGraph)
 moi = MOI(twitterGraph)
 
@@ -89,7 +90,7 @@ def getRank():
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screen_names = ["kyoag", "ChildAbuse_Sol", "RMP21", "ms_tina_tina", "mike_salter"]
+    screen_names = ["kyoag", "ChildAbuse_Sol"]
 
     candidates = []
 
@@ -145,14 +146,9 @@ def graphs():
     })
     ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [user.id])[0]
     ranks['moiScore'] = moi.fetch_moi_score(user.id, twitterFetch["max_tweets"])
-    candidateTweets = twitterGraph.fetch_tweets(user.id, twitterFetch["max_tweets"])
-    topicModel = ldamodelInstance.topicDist(candidateTweets)
     for res in queryMongo:
         query = res["name"]
-
-    query_id = ldamodelInstance.search(query)
-    
-    ranks['topic_relevance'] = 0 if query_id not in topicModel else topicModel[query_id]
+    print(ranks)
     return render_template('graphs.html', name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 
 @app.route('/login', methods = ["POST", "GET"])

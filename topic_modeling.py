@@ -17,12 +17,22 @@ class LDAModeling:
         self.filename = filename
 
     def train(self, texts, num_topics=5, num_words=10, num_passes=1):
-        dictionary = corpora.Dictionary(texts)
-        corpus = [dictionary.doc2bow(text) for text in texts]
-        self.model = ldamodel.LdaModel(corpus, num_topics=num_topics, id2word = dictionary, passes=num_passes)
+        self.dictionary = corpora.Dictionary(texts)
+        corpus = [self.dictionary.doc2bow(text) for text in texts]
+        self.model = ldamodel.LdaModel(corpus, num_topics=num_topics, id2word = self.dictionary, passes=num_passes)
         self.topics = []
+        self.num_topics = num_topics
+        self.num_words = num_words
         for topic in self.model.print_topics(num_topics=num_topics, num_words=num_words):
             self.topics.append(topic)
+
+    def update(self, texts):
+        self.dictionary.add_documents(texts)
+        corpus = [self.dictionary.doc2bow(text) for text in texts]
+        self.model.update(corpus)
+        self.topics = []
+        for topic in self.model.print_topics(num_topics=20, num_words=10):
+            self.topics.append(topic)     
     
     def index(self):
         config = json.load(open("config.json", 'r'))
@@ -55,15 +65,14 @@ class LDAModeling:
         return id
 
     def saveAsPickle(self):
-        topic_model_list = [self.model, self.topics]
+        topic_model_list = [self.model, self.topics, self.dictionary, self.num_topics, self.num_words]
         with open(self.filename, 'wb') as pickleFile:
             pickle.dump(topic_model_list, pickleFile)
     
     def loadPickle(self):
         with open(self.filename, 'rb') as pickleFile:
             topic_model_list = pickle.load(pickleFile)
-            self.model = topic_model_list[0]
-            self.topics = topic_model_list[1]
+            self.model, self.topics, self.dictionary, self.num_topics, self.num_words = topic_model_list
 
     def analyze_sentiment(self, tweet):
         analysis = TextBlob(tweet)

@@ -21,8 +21,11 @@ class TwitterGraph:
     def write_pickle(self):
         nx.write_gpickle(self.G, self.file_name)
     
-    def add_candidate(self, screen_name, max_followers, max_follower_friends):
-        res = twitterInstance.api.get_user(screen_name)
+    def add_candidate(self, screen_name, max_followers, max_follower_friends, force_fetch = False):
+        res = self.fetch_user(screen_name=screen_name)
+        if not force_fetch and res.id in self.G.nodes():
+            print("Candidate already exists")
+            return
         self.G.add_node(res.id, status_count = res.statuses_count, 
                         screen_name = res.screen_name, similarity={},
                         followers_count = res.followers_count,
@@ -68,7 +71,6 @@ class TwitterGraph:
 
     def fetch_user(self, screen_name=None, id=None):
         assert (id is not None or screen_name is not None)
-        print("id is", id)
         userMongo = mongo.usersCollection.find({'$or':[ {'screen_name':screen_name}, {'id':id}]})
         if userMongo.count() == 0:
             screen_name = screen_name if screen_name is not None else id

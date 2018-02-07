@@ -90,14 +90,15 @@ def getRank():
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screen_names = ["nasw", "meganneiljourno", "laurakatebanks", "mike_salter"]
+    screen_names = ["meganneiljourno", "laurakatebanks", "mike_salter", "ChildAbuse_Sol", "RMP21","kyoag"]
 
     candidates = []
 
     for screen_name in screen_names:
-        res = twitterInstance.fetchUser(screen_name)
-        users = twitterGraph.fetch_user(screen_name)
-        candidates.append({'id': res.id, 'screen_name': screen_name})
+        res = twitterGraph.fetch_user(screen_name)
+        candidates.append({'id': res.id, 
+                           'screen_name': screen_name,
+                           'image_url': res.profile_image_url})
     for query_dict in queries:
         if query_dict['isPresent'] == False:
             pending_topics.append(query_dict['name'])
@@ -112,6 +113,7 @@ def getRank():
                 res["moiScore"] = moi.fetch_moi_score(candidate['id'], twitterFetch["max_tweets"])
                 res["name"] = candidate['screen_name']
                 res["id"] = candidate['id']
+                res["image_url"] = candidate['image_url']
         ranking = Ranking(ranks)
         ranking.rank()
 
@@ -132,9 +134,11 @@ def graphs():
     queryMongo = mongo.topicCollection.find({
         'name': query
     })
+    ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [user.id])
+    ranks[0]['moiScore'] = moi.fetch_moi_score(user.id, twitterFetch["max_tweets"])
     for res in queryMongo:
         query = res["name"]
-    return render_template('graphs.html', name=user.screen_name, topic_name=query)
+    return render_template('graphs.html', name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks[0])
 
 @app.route('/login', methods = ["POST", "GET"])
 def login():

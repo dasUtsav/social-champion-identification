@@ -55,6 +55,10 @@ class TopicInfluence:
                 'node': center_node,
                 'influence': final_rank_vector[index]
             })
+            self.twitterGraph.G.node[center_node]['influence'] = final_rank_vector[index]
+        
+        self.twitterGraph.reset_prop('tweet_doc', [])
+        self.twitterGraph.write_pickle()
         return candidate_ranks
 
     def getNodeArray(self, center_nodes=[]):
@@ -94,21 +98,6 @@ class TopicInfluence:
                     score = 0
                 probab_vector.append(score)
 
-            # neighSum = 0
-            # for (ownNode, neighbor) in self.twitterGraph.G.edges(node1):
-            #     neighSum = neighSum + self.twitterGraph.G.node[neighbor]['status_count']
-            # probab_vector = []
-            # for node2 in node_array:
-            #     if node1 == node2:
-            #         score = 1
-            #     elif node2 in center_nodes and self.twitterGraph.G.has_edge(node1, node2) and len(self.twitterGraph.G.node[node1]['tweet_doc']) != 0:
-            #         self.twitterGraph.set_model(node2, max_tweets, fetchTweetDoc=False)
-            #         self.calcSimilarity(node2)
-            #         self.calcSimilarity(node1)
-            #         score = self.twitterGraph.G.node[node2]['status_count'] / neighSum * (1 - abs(self.twitterGraph.G.node[node1]['similarity'][topic_number] - self.twitterGraph.G.node[node2]['similarity'][topic_number]))
-            #     else:
-            #         score = 0
-            #     probab_vector.append(score)
             probab_matrix.append(probab_vector)
 
         return np.array(probab_matrix)

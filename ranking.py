@@ -9,6 +9,7 @@ class Ranking:
         for filter in filters:
             self.dataframe = self.normalize(self.dataframe, filter)
         print("Normalized dataframe")
+        print(self.dataframe)
 
     @staticmethod
     def normalize(df, column):
@@ -18,7 +19,7 @@ class Ranking:
         df[column] = (df[column] - min) / (max - min)
         return df
 
-    def rank(self, filters=['influence', 'moiScore']):
+    def rank(self, filters=['influence', 'moiScore', 'topic_relevance']):
         weightages = {}
         rank = []
         self.dataframe['rank'] = 0
@@ -26,4 +27,3 @@ class Ranking:
             weightages[filter] = 1 / 3
             self.dataframe['rank'] += self.dataframe[filter] * weightages[filter]
         self.dataframe = self.dataframe.sort_values(['rank'], ascending=0)
-        print(self.dataframe)

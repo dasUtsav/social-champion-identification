@@ -87,9 +87,8 @@ class LDAModeling:
         # textAndNoise = Text_retrieve(docs)
         # lemmatized = textAndNoise.lemmatize()
         docs = [[word for tweet in docs 
-              for word in tweet]]
-        doc_dictionary = corpora.Dictionary(docs)
-        doc_bow = [doc_dictionary.doc2bow(text) for text in docs]
+              for word in tweet]]   
+        doc_bow = [self.dictionary.doc2bow(text) for text in docs]
         doc_sample = []
         topicVar = {}
         for topic in self.model[doc_bow]:

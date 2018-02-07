@@ -3,7 +3,7 @@ import tweepy, json
 class Tweet:
     def __init__(self, dict_tweet):
         self.favourite_count = dict_tweet['favorite_count']
-        self.user_id = dict_tweet['user']['id']
+        self.user_id = str(dict_tweet['user']['id'])
         self.retweet_count = dict_tweet['retweet_count']
         self.hashtags = dict_tweet['entities']['hashtags']
         self.user_mentions = dict_tweet['entities']['user_mentions']
@@ -19,7 +19,7 @@ class User:
         self.statuses_count = dict_tweet["statuses_count"]
         self.screen_name = dict_tweet["screen_name"]
         self.followers_count = dict_tweet["followers_count"]
-        self.id = dict_tweet["id"]
+        self.id = str(dict_tweet["id"])
 
 class Twitter:
 

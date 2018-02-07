@@ -24,8 +24,7 @@ twitterGraph = TwitterGraph("twitterGraph.pickle")
 if os.path.isfile("twitterGraph.pickle"):
     twitterGraph.load_pickle()
 else:
-    twitterGraph.add_candidate('nasw', max_followers, max_follower_friends)
-    twitterGraph.save_pickle()
+    twitterGraph.write_pickle()
 
 topicInfluence = TopicInfluence(twitterGraph)
 moi = MOI(twitterGraph)
@@ -90,7 +89,7 @@ def getRank():
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screen_names = ["meganneiljourno", "laurakatebanks", "mike_salter", "ChildAbuse_Sol", "RMP21","kyoag"]
+    screen_names = ["kyoag"]
 
     candidates = []
 

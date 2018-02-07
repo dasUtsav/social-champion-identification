@@ -108,7 +108,7 @@ class TwitterGraph:
         return tweet_doc
 
     def set_model(self, screen_name, max_tweets, fetchTweetDoc=False):
-        res = twitterInstance.api.get_user(screen_name)
+        res = self.fetch_user(screen_name=screen_name)
         if fetchTweetDoc is True:
             tweet_doc = self.set_tweet_doc(res.id, max_tweets)
         else:   

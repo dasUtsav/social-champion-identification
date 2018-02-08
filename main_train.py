@@ -7,7 +7,7 @@ from topic_modeling import LDAModeling
 from gensim.models import Phrases
 
 
-from spacy.en import English
+# from spacy.en import English
 
 nlp = spacy.load("en")
 

@@ -31,7 +31,7 @@ class LDAModeling:
         corpus = [self.dictionary.doc2bow(text) for text in texts]
         self.model.update(corpus)
         self.topics = []
-        for topic in self.model.print_topics(num_topics=20, num_words=10):
+        for topic in self.model.print_topics(num_topics=self.num_topics, num_words=self.num_words):
             self.topics.append(topic)     
     
     def index(self):
@@ -95,7 +95,8 @@ class LDAModeling:
                 final_topic_dist = doc_topic_dist[topic] / divisor
                 break
             divisor *= 2
-        return final_topic_dist.iloc[0]
+
+        return 0 if final_topic_dist is 0 else final_topic_dist.iloc[0]
     
     def topicDist(self, docs):
         # textAndNoise = Text_retrieve(docs)

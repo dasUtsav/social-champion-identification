@@ -104,6 +104,9 @@ def getRank():
                            candidate['id'] for candidate in candidates])
     for i, rank in enumerate(ranks):
         candidates[i] = dict(candidates[i], **rank)
+        candidates[i]["moiScore"] = moi.fetch_moi_score(candidates[i]['id'], twitterFetch["max_tweets"])
+
+    
     for query_dict in queries:
         topic_dist = 0
         if query_dict['isPresent'] == False:
@@ -113,10 +116,9 @@ def getRank():
             query = query_dict['name']
             for candidate in candidates:
                 candidateTweets = twitterGraph.fetch_tweets(candidate['id'], twitterFetch["max_tweets"])
-                candidate["moiScore"] = moi.fetch_moi_score(candidate['id'], twitterFetch["max_tweets"])
                 candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
             
-        ranking = Ranking(ranks)
+        ranking = Ranking(candidates)
         ranking.rank()
 
         rank_list = ranking.dataframe.to_dict(orient='records')
@@ -143,7 +145,6 @@ def graphs():
     })
     candidateTweets = twitterGraph.fetch_tweets(user.id, twitterFetch["max_tweets"])
     ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [user.id])[0]
-    print(ranks)
     ranks['moiScore'] = moi.fetch_moi_score(user.id, twitterFetch["max_tweets"])
     for res in queryMongo:
         query = res["name"]

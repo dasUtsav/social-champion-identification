@@ -79,14 +79,11 @@ def addProfile():
                                    twitterFetch["max_follower_friends"])
     return redirect("/rank", code=200)
 
-@app.route('/rank', methods=['GET', 'POST'])
+@app.route('/rank', methods=['GET'])
 def getRank():
     topic_results = mongo.topicCollection.find()
     queries = [topic_result for topic_result in topic_results]
     filters = []
-    if request.method == 'POST':
-        filters = [request.form[key] for key in request.form.keys() if key != 'query']
-    sorted_rank = []
     pending_topics = []
     rank_list = []
     final_ranks = []
@@ -98,6 +95,7 @@ def getRank():
         res = twitterGraph.fetch_user(screen_name)
         candidates.append({'id': res.id, 
                            'screen_name': screen_name,
+                           'topic_relevance': 0,
                            'image_url': res.profile_image_url})
 
     ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [
@@ -105,7 +103,6 @@ def getRank():
     for i, rank in enumerate(ranks):
         candidates[i] = dict(candidates[i], **rank)
         candidates[i]["moiScore"] = moi.fetch_moi_score(candidates[i]['id'], twitterFetch["max_tweets"])
-
     
     for query_dict in queries:
         topic_dist = 0
@@ -130,26 +127,16 @@ def getRank():
     
     return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
 
-# def fetch_stats(candidates = []):
-#     for candidate in candidates:
-#     stats = {}
-#     stats["moiScore"]
-
 @app.route('/rank/graphs')
 def graphs():
     id = request.args.get('id')
     query = request.args.get('topic_name')
     user = twitterGraph.fetch_user(id=id)
-    queryMongo = mongo.topicCollection.find({
-        'name': query
-    })
-    candidateTweets = twitterGraph.fetch_tweets(user.id, twitterFetch["max_tweets"])
-    ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [user.id])[0]
-    ranks['moiScore'] = moi.fetch_moi_score(user.id, twitterFetch["max_tweets"])
-    for res in queryMongo:
-        query = res["name"]
-    ranks['topic_relevance'] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
-    del ranks['id']
+    ranks = {
+        'influence': float(request.args.get('influence')) * 100,
+        'moiScore': float(request.args.get('moiScore')) * 100,
+        'topic_relevance': float(request.args.get('topic_relevance')) * 100,
+    }
     ranks = sorted(ranks.items())
     return render_template('graphs.html', screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 

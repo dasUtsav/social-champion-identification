@@ -28,11 +28,7 @@
                 datasets: [{
                     label: "Candidate",
                     data: [ {% for key, value in stats %}
-                                {% if key == "node" %}
-
-                                {% else %}
-                                    {{ value }},
-                                {% endif %}
+                                {{ value }},
                             {% endfor %} ],
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',

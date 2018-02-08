@@ -66,7 +66,7 @@
                                     <td>{{loop.index}}</td>
                                 
                                         <td> 
-                                            <a href="/rank/graphs?id={{ dict_item['id'] }}&topic_name={{data['query']}}" class="links">
+                                            <a href="/rank/graphs?id={{ dict_item['id'] }}&topic_name={{data['query']}}&moiScore={{dict_item['moiScore']}}&influence={{dict_item['influence']}}&topic_relevance={{dict_item['topic_relevance']}}" class="links">
                                                 <img class="profile_image" src="{{dict_item['image_url']}}"
                                                     height="50em" width="50em" alt="TEST">{{dict_item['screen_name']}}
                                             </a>

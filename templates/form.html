@@ -4,17 +4,19 @@
 <div class="container text-center" style="padding: 50px 0px 100px 0px">
 
     {% if final_ranks is defined %}
-    <div class="row">
-        <div class="col-sm-12 alert alert-info alert-dismissible fade show" role="alert">
-            <p>
-                {% for pending_topic in pending_topics %} {{pending_topic.capitalize()}}, {% endfor %} is not present in the training corpus
-                at the moment. We will revert back shortly! :)
-            </p>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    </div>
+        {% if pending_topics|length > 0 %}
+            <div class="row">
+                <div class="col-sm-12 alert alert-info alert-dismissible fade show" role="alert">
+                    <p>
+                        {% for pending_topic in pending_topics %} {{pending_topic.capitalize()}}, {% endfor %} is not present in the training corpus
+                        at the moment. We will revert back shortly! :)
+                    </p>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        {% endif %}
 
     <div class="row">
         <div class="col-sm-3">
@@ -66,7 +68,7 @@
                                         <td> 
                                             <a href="/rank/graphs?id={{ dict_item['id'] }}&topic_name={{data['query']}}" class="links">
                                                 <img class="profile_image" src="{{dict_item['image_url']}}"
-                                                    height="50em" width="50em" alt="TEST">{{dict_item['name']}}
+                                                    height="50em" width="50em" alt="TEST">{{dict_item['screen_name']}}
                                             </a>
                                         </td>
                                     

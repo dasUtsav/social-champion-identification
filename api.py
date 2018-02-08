@@ -26,7 +26,7 @@ if os.path.isfile("twitterGraph.pickle"):
 else:
     twitterGraph.write_pickle()
 
-twitterGraph.resetRefetch()
+# twitterGraph.resetRefetch()
 topicInfluence = TopicInfluence(twitterGraph)
 moi = MOI(twitterGraph)
 
@@ -90,7 +90,7 @@ def getRank():
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screen_names = ["kyoag", "ChildAbuse_Sol"]
+    screen_names = ["kyoag", "ChildAbuse_Sol", "ms_tina_tina", "mike_salter"]
 
     candidates = []
 
@@ -99,30 +99,22 @@ def getRank():
         candidates.append({'id': res.id, 
                            'screen_name': screen_name,
                            'image_url': res.profile_image_url})
+
+    ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [
+                           candidate['id'] for candidate in candidates])
+    for i, rank in enumerate(ranks):
+        candidates[i] = dict(candidates[i], **rank)
     for query_dict in queries:
-        ldamodelInstance.index()
-        query_id = ldamodelInstance.search(query_dict["name"])
         topic_dist = 0
         if query_dict['isPresent'] == False:
             pending_topics.append(query_dict['name'])
         else:
             rankings = []
             query = query_dict['name']
-            ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [
-                    candidate['id'] for candidate in candidates])
             for candidate in candidates:
                 candidateTweets = twitterGraph.fetch_tweets(candidate['id'], twitterFetch["max_tweets"])
-                topicModel = ldamodelInstance.topicDist(candidateTweets)
-                print(topicModel)
-                result = filter(lambda rank: rank['node'] == candidate['id'], ranks)
-                for res in result:
-                    res["moiScore"] = moi.fetch_moi_score(candidate['id'], twitterFetch["max_tweets"])
-                    res["name"] = candidate['screen_name']
-                    res["id"] = candidate['id']
-                    res["image_url"] = candidate['image_url']
-                    res["topic_relevance"] = 0 if query_id not in topicModel else topicModel[query_id]
-
-            twitterGraph.reset_prop('tweet_doc', [])
+                candidate["moiScore"] = moi.fetch_moi_score(candidate['id'], twitterFetch["max_tweets"])
+                candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
             
         ranking = Ranking(ranks)
         ranking.rank()
@@ -136,6 +128,11 @@ def getRank():
     
     return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
 
+# def fetch_stats(candidates = []):
+#     for candidate in candidates:
+#     stats = {}
+#     stats["moiScore"]
+
 @app.route('/rank/graphs')
 def graphs():
     id = request.args.get('id')
@@ -144,12 +141,16 @@ def graphs():
     queryMongo = mongo.topicCollection.find({
         'name': query
     })
+    candidateTweets = twitterGraph.fetch_tweets(user.id, twitterFetch["max_tweets"])
     ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [user.id])[0]
+    print(ranks)
     ranks['moiScore'] = moi.fetch_moi_score(user.id, twitterFetch["max_tweets"])
     for res in queryMongo:
         query = res["name"]
-    print(ranks)
-    return render_template('graphs.html', name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
+    ranks['topic_relevance'] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
+    del ranks['id']
+    ranks = sorted(ranks.items())
+    return render_template('graphs.html', screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 
 @app.route('/login', methods = ["POST", "GET"])
 def login():

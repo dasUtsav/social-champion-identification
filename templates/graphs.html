@@ -8,7 +8,7 @@
 
         <div class="container alert alert-primary userBox">
             <p> <span><img class="profile_image" src="{{image_url}}"
-                height="60em" width="60em" alt="TEST"></span> <span style="font-size:2em">{{name}}</span></p>
+                height="60em" width="60em" alt="TEST"></span> <span style="font-size:2em">{{screen_name}}</span></p>
         </div>
         <div class="graphs">
             <canvas id="myChart" width="400" ></canvas>
@@ -27,7 +27,7 @@
                 labels: [ "Influential Score", "Moi Score" ,"Topic Relevance"],
                 datasets: [{
                     label: "Candidate",
-                    data: [ {% for key, value in stats.items() %}
+                    data: [ {% for key, value in stats %}
                                 {% if key == "node" %}
 
                                 {% else %}

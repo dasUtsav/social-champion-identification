@@ -31,7 +31,7 @@ class TopicInfluence:
             for center_node in center_nodes:
                 if 'influence' in self.twitterGraph.G.node[center_node]:
                     candidate_ranks.append({
-                        'node': center_node,
+                        'id': center_node,
                         'influence': self.twitterGraph.G.node[center_node]['influence']
                     })
                     updated_center_nodes.remove(center_node)
@@ -52,7 +52,7 @@ class TopicInfluence:
         for center_node in center_nodes:
             index = node_array.index(center_node)
             candidate_ranks.append({
-                'node': center_node,
+                'id': center_node,
                 'influence': final_rank_vector[index]
             })
             self.twitterGraph.G.node[center_node]['influence'] = final_rank_vector[index]

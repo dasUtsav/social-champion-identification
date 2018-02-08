@@ -48,10 +48,13 @@ texts = [bigram[line] for line in texts]
 
 ldamodel = LDAModeling("ldamodel.pickle")
 
-ldamodel.train(texts, 20, 10, 15)
+ldamodel.loadPickle()
+
+# ldamodel.train(texts, 20, 10, 10)
+ldamodel.update(texts)
 
 ldamodel.index()
 ldamodel.deleteIndex()
 ldamodel.index()
 
-# ldamodel.saveAsPickle()
+ldamodel.saveAsPickle()

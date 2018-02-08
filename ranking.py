@@ -5,7 +5,7 @@ import numpy as np
 class Ranking:
     def __init__(self, ranks):
         self.dataframe = pd.DataFrame(ranks)
-        filters = ['influence', 'moiScore']
+        filters = ['influence', 'moiScore', 'topic_relevance']
         for filter in filters:
             self.dataframe = self.normalize(self.dataframe, filter)
         print("Normalized dataframe")

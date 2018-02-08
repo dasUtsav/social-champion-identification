@@ -57,12 +57,12 @@ class LDAModeling:
         doc_type = elasticConfig['doc_type']
         esIndices.delete(index=index)
 
-    def search(self, query):
+    def search(self, query, noOfResults=3):
         res = self.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
         if not res['hits']['hits']:
             return False
-        id = int(res['hits']['hits'][0]['_id'])
-        return id
+        id = [int(topic['_id']) for topic in res['hits']['hits']]
+        return id[:noOfResults]
 
     def saveAsPickle(self):
         topic_model_list = [self.model, self.topics, self.dictionary, self.num_topics, self.num_words]
@@ -82,6 +82,20 @@ class LDAModeling:
             return 0
         else:
             return -1
+
+    def getTopicDistFromQuery(self, docs, query):
+        topic_ids = self.search(query)
+        doc_topic_dist = self.topicDist(docs)
+        print(doc_topic_dist)
+        print(topic_ids)
+        final_topic_dist = 0
+        divisor = 1
+        for topic in topic_ids:
+            if topic in doc_topic_dist:
+                final_topic_dist = doc_topic_dist[topic] / divisor
+                break
+            divisor *= 2
+        return final_topic_dist.iloc[0]
     
     def topicDist(self, docs):
         # textAndNoise = Text_retrieve(docs)

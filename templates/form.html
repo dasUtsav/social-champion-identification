@@ -3,23 +3,27 @@
 
 <div class="container text-center" style="padding: 50px 0px 100px 0px">
 
-    {% if final_ranks is defined %}
-        {% if pending_topics|length > 0 %}
-            <div class="row">
-                <div class="col-sm-12 alert alert-info alert-dismissible fade show" role="alert">
-                    <p>
-                        {% for pending_topic in pending_topics %} {{pending_topic.capitalize()}}, {% endfor %} is not present in the training corpus
-                        at the moment. We will revert back shortly! :)
-                    </p>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            </div>
-        {% endif %}
+    {% if final_ranks is defined %} {% if pending_topics|length > 0 %}
+    <div class="row">
+        <div class="col-sm-12 alert alert-info alert-dismissible fade show" role="alert">
+            <p>
+                {% for pending_topic in pending_topics %} {{pending_topic.capitalize()}}, {% endfor %} is not present in the training corpus
+                at the moment. We will revert back shortly! :)
+            </p>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <img src="http://www.madelinejaeger.com/wp-content/uploads/2016/05/leaderboard_screenshot_2.jpg" alt="leaderboards" height="300px"
+        width="300px">
+
+    <hr>
 
     <div class="row">
-        <div class="col-sm-3">
+        <!-- <div class="col-sm-3">
             <h2>Filters</h2>
             <select class="list-group" id="sbOne" multiple="multiple">
                 <option class="list-group-item" value="likes">Likes</option>
@@ -32,7 +36,7 @@
 
             <select class="" id="sbTwo" multiple="multiple"></select>
             <br>
-3
+
             <div class="btn-group">
                 <input class="btn btn-secondary" type="button" id="left" value="<" />
                 <input class="btn btn-secondary" type="button" id="right" value=">" />
@@ -40,49 +44,52 @@
                 <input class="btn btn-secondary" type="button" id="rightall" value=">>" />
             </div>
             <input class="btn btn-success" id="queryForm" type="button" value="Filter" id="submit" />
+        </div> -->
+
+        <div class="col-sm-12">
+            <div class="flex-container">
+
+
+                {% for data in final_ranks %}
+
+                <div class="box">
+                    <!-- <h3 class="query">{{data['query'].capitalize()}}</h3> -->
+                    <table class="table table-striped leaderboard">
+                        <thead>
+                            <tr>
+                                <th colspan="2">{{data['query'].capitalize()}}</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+                            {% for dict_item in data['rank_list'] %}
+
+                            <tr>
+                                <td>{{loop.index}}</td>
+
+                                <td>
+                                    <a href="/rank/graphs?id={{ dict_item['id'] }}&topic_name={{data['query']}}&moiScore={{dict_item['moiScore']}}&influence={{dict_item['influence']}}&topic_relevance={{dict_item['topic_relevance']}}"
+                                        class="links">
+                                        <img class="profile_image" src="{{dict_item['image_url']}}" height="50em" width="50em" alt="TEST">{{dict_item['screen_name']}}
+                                    </a>
+                                </td>
+                                <td style="text-align:center">56</td>
+
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+                {% endfor %}
+
+                
+            </div>
         </div>
 
-            <div class="col-sm-9">
-                <h2 class="text-center">Leaderboard</h2>
-                <div class="flex-container">
-                
-                
-                    {% for data in final_ranks %}
-                    
-                    <div class="box">
-                        <!-- <h3 class="query">{{data['query'].capitalize()}}</h3> -->
-                        <table class="table table-striped leaderboard">
-                            <thead>
-                                <tr>
-                                    <th colspan="2">{{data['query'].capitalize()}}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-
-                                {% for dict_item in data['rank_list'] %}
-                                
-                                <tr>
-                                    <td>{{loop.index}}</td>
-                                
-                                        <td> 
-                                            <a href="/rank/graphs?id={{ dict_item['id'] }}&topic_name={{data['query']}}&moiScore={{dict_item['moiScore']}}&influence={{dict_item['influence']}}&topic_relevance={{dict_item['topic_relevance']}}" class="links">
-                                                <img class="profile_image" src="{{dict_item['image_url']}}"
-                                                    height="50em" width="50em" alt="TEST">{{dict_item['screen_name']}}
-                                            </a>
-                                        </td>
-                                    
-                                    
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-
-                    </div>
-                    {% endfor %}
-                </div>   
-            </div>
-        
     </div>
 
     {% else %}

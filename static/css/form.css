@@ -6,13 +6,18 @@
 
 
 
-.leaderboard td {
+.leaderboard td{
     text-align: left;
 }
 
-.profile_image {
+
+
+.profile_image , .profile_image_graph{
     border-radius: 50%; 
     border: 2px solid red; 
+}
+
+.profile_image {
     margin-right: 1em;
 }
 
@@ -31,7 +36,13 @@
 }
 
 .userBox{
-    padding-left: 4em;
+   width: 100%;
+   display: flex;
+   margin: auto;
+   text-align: center;
+   justify-content: center;
+   flex-direction: column;
+   align-items: center;
 }
 
 .flex-container{
@@ -42,7 +53,7 @@
 }
 
 .box{
-    /* flex-grow: 1; */
+    flex-grow: 1;
     /* min-height: 490px; */
     margin: 0 1em;
     min-width: 200px; 

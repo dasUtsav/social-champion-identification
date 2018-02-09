@@ -1,147 +1,148 @@
-{% extends 'index.html' %} 
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"> {% endblock %}
+{% extends 'index.html' %} {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"> {% endblock %} {% block body %}
+<div class="container topic_name">
+    <h1 class="text-center">{{topic_name.capitalize()}}</h1>
 
-{% block body %}
-    <div class="container topic_name">
-        <h1 class="text-center">{{topic_name}}</h1>
-
-        <div class="container alert alert-primary userBox">
-            <p> <span><img class="profile_image" src="{{image_url}}"
-                height="60em" width="60em" alt="TEST"></span> <span style="font-size:2em">{{screen_name}}</span></p>
+    <div class="row jumbotron">
+        <div class="col-sm-4">
+            <div class="container userBox">
+                <img class="profile_image_graph"  src="{{image_url}}" height="200em" width="200em" alt="TEST">
+                <p  style="font-size:2em">{{screen_name}}</p>
+            </div>
         </div>
-        <div class="graphs">
-            <h2>Stats:</h2>
-            <canvas id="myChart" width="400" ></canvas>
-            <h2>Likes over time:</h2>
-            <canvas id="SeriesTweet" width="400" ></canvas>
-            <canvas id="SeriesFav" width="400" ></canvas>
+        <div class="col-sm-8">
+            <h3>Stats:</h3>
+            <canvas id="myChart" width="400"></canvas>
         </div>
-        
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-    
-    <!-- labels: [ "Influential Score", "Moi Score" ,"Topic Relevance"],
+
+    <div class="graphs">
+        <h2>Likes over time:</h2>
+        <canvas id="SeriesTweet" width="400"></canvas>
+        <canvas id="SeriesFav" width="400"></canvas>
+    </div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+
+<!-- labels: [ "Influential Score", "Moi Score" ,"Topic Relevance"],
                 datasets: [{
                     label: "Candidate",
                     data: [ {% for key, value in stats %}
                                 {{ value }},
                             {% endfor %} ], -->
 
-    <script>
-        var ctx = document.getElementById("myChart");
-        ctx.height = 100;
-        var myChart = new Chart(ctx, {
-            type: 'horizontalBar',
-            data: {
-                labels: [ "Influential Score", "Moi Score" ,"Topic Relevance"],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [ {% for key, value in stats %}
+<script>
+    var ctx = document.getElementById("myChart");
+    ctx.height = 150;
+    var myChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: ["Influential Score", "Moi Score", "Topic Relevance"],
+            datasets: [{
+                label: '# of Votes',
+                data: [{% for key, value in stats %}
                                 {{ value }},
                             {% endfor %} ],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255,99,132,1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)'
-                    ],
-                    borderWidth: 1
+    backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)'
+    ],
+        borderColor: [
+            'rgba(255,99,132,1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)'
+        ],
+            borderWidth: 1
                 }]
             },
-            options: {
-                legend: {
-                    display: false
-                },
-                scales: {
-                    xAxes: [{
-                        ticks: {
-                            beginAtZero:true
-                        }
-                    }],
-                    yAxes: [{
-                        barPercentage: 0.4
-                    }]
+    options: {
+        legend: {
+            display: false
+        },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    beginAtZero: true
                 }
-            }
+            }],
+                yAxes: [{
+                    barPercentage: 0.4
+                }]
+        }
+    }
         });
-        </script>
-	<script>
-		function randomNumber(min, max) {
-			return Math.random() * (max - min) + min;
-		}
+</script>
+<script>
+    function randomNumber(min, max) {
+        return Math.random() * (max - min) + min;
+    }
 
-		function randomBar(date, lastClose) {
-			var open = randomNumber(lastClose * .95, lastClose * 1.05);
-			var close = randomNumber(open * .95, open * 1.05);
-			var high = randomNumber(Math.max(open, close), Math.max(open, close) * 1.1);
-			var low = randomNumber(Math.min(open, close) * .9, Math.min(open, close));
-			return {
-				t: date.valueOf(),
-				y: close
-			};
-		}
+    function randomBar(date, lastClose) {
+        var open = randomNumber(lastClose * .95, lastClose * 1.05);
+        var close = randomNumber(open * .95, open * 1.05);
+        var high = randomNumber(Math.max(open, close), Math.max(open, close) * 1.1);
+        var low = randomNumber(Math.min(open, close) * .9, Math.min(open, close));
+        return {
+            t: date.valueOf(),
+            y: close
+        };
+    }
 
-		var dateFormat = 'MMMM DD YYYY';
-		var date = moment('April 01 2017', dateFormat);
-		var data = [randomBar(date, 30)];
-		var labels = [date];
-		while (data.length < 60) {
-			date = date.clone().add(1, 'd');
-			if (date.isoWeekday() <= 5) {
-				data.push(randomBar(date, data[data.length - 1].y));
-				labels.push(date);
-			}
-		}
+    var dateFormat = 'MMMM DD YYYY';
+    var date = moment('April 01 2017', dateFormat);
+    var data = [randomBar(date, 30)];
+    var labels = [date];
+    while (data.length < 60) {
+        date = date.clone().add(1, 'd');
+        if (date.isoWeekday() <= 5) {
+            data.push(randomBar(date, data[data.length - 1].y));
+            labels.push(date);
+        }
+    }
 
-		var ctx = document.getElementById("SeriesTweet").getContext("2d");
-		ctx.canvas.width = 1000;
-		ctx.canvas.height = 300;
-		var cfg = {
-			type: 'line',
-			data: {
-				labels: labels,
-				datasets: [{
-					label: "CHRT - Chart.js Corporation",
-					data: data,
-					type: 'line',
-					pointRadius: 0,
-					fill: false,
-					lineTension: 0,
-					borderWidth: 2
-				}]
-			},
-			options: {
-                legend: {
-                    display: false
-                },
-				scales: {
-					xAxes: [{
-						type: 'time',
-						distribution: 'series',
-						ticks: {
-							source: 'labels'
-						}
-					}],
-					yAxes: [{
-						scaleLabel: {
-							display: true,
-							labelString: 'Closing price ($)'
-						}
-					}]
-				}
-			}
-		};
-		var chart = new Chart(ctx, cfg);
+    var ctx = document.getElementById("SeriesTweet").getContext("2d");
+    ctx.canvas.width = 1000;
+    ctx.canvas.height = 300;
+    var cfg = {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "CHRT - Chart.js Corporation",
+                data: data,
+                type: 'line',
+                pointRadius: 0,
+                fill: false,
+                lineTension: 0,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    distribution: 'series',
+                    ticks: {
+                        source: 'labels'
+                    }
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Closing price ($)'
+                    }
+                }]
+            }
+        }
+    };
+    var chart = new Chart(ctx, cfg);
 
-		
 
-	</script>
-    
 
-{% endblock %}
+</script> {% endblock %}

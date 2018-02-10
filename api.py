@@ -1,14 +1,12 @@
 import json
-import pickle
 import math
 import pandas as pd
 import bcrypt
 import os
 import mongo
-from operator import itemgetter
+import re
 from flask import Flask, request, render_template, redirect, url_for, session    
 from twitter import Twitter
-from collections import namedtuple
 from elasticsearch import Elasticsearch
 from ranking import Ranking
 from classes.TwitterGraph import TwitterGraph
@@ -87,7 +85,7 @@ def getRank():
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screen_names = ["kyoag", "ChildAbuse_Sol", "ms_tina_tina", "mike_salter"]
+    screen_names = ["kyoag", "ChildAbuse_Sol", "ms_tina_tina", "mike_salter", "BillGates"]
 
     candidates = []
 
@@ -138,6 +136,7 @@ def graphs():
         'topic_relevance': float(request.args.get('topic_relevance')) * 100,
     }
     ranks = sorted(ranks.items())
+    user.profile_image_url = re.sub(r'_normal', '', user.profile_image_url)
     return render_template('graphs.html', screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 
 @app.route('/login', methods = ["POST", "GET"])

@@ -62,6 +62,8 @@ class LDAModeling:
         if not res['hits']['hits']:
             return False
         id = [int(topic['_id']) for topic in res['hits']['hits']]
+        print("Id is")
+        print(id)
         return id[:noOfResults]
 
     def saveAsPickle(self):

@@ -9,7 +9,6 @@ class Ranking:
         for filter in filters:
             self.dataframe = self.normalize(self.dataframe, filter)
         print("Normalized dataframe")
-        print(self.dataframe)
 
     @staticmethod
     def normalize(df, column):

@@ -19,5 +19,8 @@
         "port": 9200,
         "index": "lsi_topics",
         "doc_type": "lsi"
+    },
+    "newsapi": {
+        "api_key": "3fee702fe91748e8b8220095fcc4747a"
     }
 }

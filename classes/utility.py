@@ -8,7 +8,8 @@ def fetchTimeSeries(tweets, propName):
     df = df.groupby(['created_at']).sum()
     return df.to_dict()
 
-def unixTimeSeconds(date):
+def unixTimeSeconds(date_time, includeTime=False):
     epoch = datetime.datetime.utcfromtimestamp(0)
-    date_time = datetime.datetime.combine(date, datetime.time())
-    return (date_time - epoch).total_seconds()
+    if includeTime is False:
+        date_time = datetime.datetime.combine(date_time, datetime.time())
+    return int((date_time - epoch).total_seconds())

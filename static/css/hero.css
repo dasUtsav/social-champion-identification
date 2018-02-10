@@ -12,3 +12,18 @@ header {
     opacity: 0.7;
     filter: blur(2px);
 }
+
+section p {
+    font-size: 1.3rem !important;
+}
+
+.flexbox img {
+    margin: 0px 15px;
+    height: 250px;
+    width: 250px;
+}
+
+.flexbox {
+    display:  flex;
+    justify-content: center
+}

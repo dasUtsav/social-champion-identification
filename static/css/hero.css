@@ -1,0 +1,14 @@
+header {
+    background: #000000 !important
+}
+
+.background-image {
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url("https://assets.entrepreneur.com/content/3x2/1300/20170926163842-GettyImages-543082622.jpeg");
+    opacity: 0.7;
+    filter: blur(2px);
+}

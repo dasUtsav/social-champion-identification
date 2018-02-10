@@ -37,7 +37,7 @@ twitterFetch = config["twitterFetch"]
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/addtopics', methods=['GET'])
 def success():
     return render_template('landing.html')
     # if 'username' in session:
@@ -175,7 +175,7 @@ def register():
     
     return render_template('register.html')
 
-@app.route('/home')
+@app.route('/')
 def home():
     return render_template("home.html")
 

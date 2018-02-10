@@ -13,6 +13,7 @@ from classes.TwitterGraph import TwitterGraph
 from classes.TopicInfluence import TopicInfluence
 from classes.MOI import MOI
 from Instances import ldamodelInstance, twitterInstance
+from classes.utility import fetchTimeSeries
 
 config = json.load(open("config.json", 'r'))
 
@@ -110,12 +111,11 @@ def getRank():
             rankings = []
             query = query_dict['name']
             for candidate in candidates:
-                candidateTweets = twitterGraph.fetch_tweets(candidate['id'], twitterFetch["max_tweets"])
+                candidateTweets = twitterGraph.fetch_preprocessed_tweets(candidate['id'], twitterFetch["max_tweets"])
                 candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
             
         ranking = Ranking(candidates)
         ranking.rank()
-
         rank_list = ranking.dataframe.to_dict(orient='records')
 
         final_ranks.append({
@@ -137,7 +137,14 @@ def graphs():
     }
     ranks = sorted(ranks.items())
     user.profile_image_url = re.sub(r'_normal', '', user.profile_image_url)
-    return render_template('graphs.html', screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
+
+    tweets, retweets = twitterGraph.fetch_favorites(user.id, twitterFetch['max_tweets'])
+    tweet_time_series, retweet_time_series = fetchTimeSeries(tweets, 'count'), fetchTimeSeries(retweets, 'count')
+    tweet_time_series, retweet_time_series = sorted(tweet_time_series['count'].items()), sorted(retweet_time_series['count'].items())
+    print(retweet_time_series)
+    return render_template('graphs.html', tweet_time_series=tweet_time_series, 
+                            retweet_time_series=retweet_time_series,
+                            screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 
 @app.route('/login', methods = ["POST", "GET"])
 def login():

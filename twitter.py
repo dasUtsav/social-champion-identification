@@ -9,6 +9,7 @@ class Tweet:
         self.user_mentions = dict_tweet['entities']['user_mentions']
         self.urls = dict_tweet['entities']['urls']
         self.message = dict_tweet['full_text']
+        self.created_at = dict_tweet['created_at']
         self.screen_name = dict_tweet['user']['screen_name']
         self.follower_count = dict_tweet['user']['followers_count']
         self.isRetweet = 1 if 'retweeted_status' in dict_tweet else 0

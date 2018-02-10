@@ -15,7 +15,6 @@
             <canvas id="myChart" width="400"></canvas>
         </div>
     </div>
-
     <div class="graphs">
         <h2>Likes over time:</h2>
         <canvas id="SeriesTweet" width="400"></canvas>
@@ -39,7 +38,7 @@
     var myChart = new Chart(ctx, {
         type: 'horizontalBar',
         data: {
-            labels: ["Influential Score", "Moi Score", "Topic Relevance"],
+            labels: ["Influence", "MOI", "Topic Relevance"],
             datasets: [{
                 label: '# of Votes',
                 data: [{% for key, value in stats %}
@@ -91,57 +90,99 @@
         };
     }
 
-    var dateFormat = 'MMMM DD YYYY';
-    var date = moment('April 01 2017', dateFormat);
-    var data = [randomBar(date, 30)];
-    var labels = [date];
-    while (data.length < 60) {
-        date = date.clone().add(1, 'd');
-        if (date.isoWeekday() <= 5) {
-            data.push(randomBar(date, data[data.length - 1].y));
+    var dateFormat = 'D/MM/YYYY';
+    var date = moment(new Date().toLocaleDateString(), dateFormat);
+    var favourites = [],
+        retweets = [];
+    var date_favourites = [],
+        date_retweets = [];
+    {% for key, value in tweet_time_series %}
+        date_favourites.push(moment.unix({{key}}).format(dateFormat));
+        favourites.push({{value}})
+    {% endfor %}
+    {% for key, value in retweet_time_series %}
+        date_retweets.push(moment.unix({{key}}).format(dateFormat));
+        retweets.push({{value}})
+    {% endfor %}
+
+    function getDataLabels(date, label_datas, date_data) {
+        let labels = [date],
+            data = [],
+            dateIndex = 0,
+            dateFormat = "";
+        for (var i = 0; i < 15; i++) {
+            dateFormat = date.format("D/MM/YYYY")
+            if((dateIndex = date_data.indexOf(dateFormat)) != -1 ) {
+                label_data = label_datas[dateIndex];
+                data.push(label_data)
+            } else {
+                data.push(0)
+            }
             labels.push(date);
+            date = date.clone().subtract(1, 'd');
+        }
+        return {
+            labels,
+            data
         }
     }
 
-    var ctx = document.getElementById("SeriesTweet").getContext("2d");
-    ctx.canvas.width = 1000;
-    ctx.canvas.height = 300;
-    var cfg = {
-        type: 'line',
-        data: {
-            labels: labels,
+    function createGraph(id, label, labelString, data, labels) {
+        var ctx = document.getElementById(id).getContext("2d");
+        ctx.canvas.width = 1000;
+        ctx.canvas.height = 300;
+        const cfg = {
+            // Labels should be Date objects
+            labels,
             datasets: [{
-                label: "CHRT - Chart.js Corporation",
-                data: data,
-                type: 'line',
-                pointRadius: 0,
                 fill: false,
+                label,
+                data,
+                borderColor: '#fe8b36',
+                backgroundColor: '#fe8b36',
                 lineTension: 0,
-                borderWidth: 2
             }]
-        },
-        options: {
-            legend: {
-                display: false
-            },
-            scales: {
-                xAxes: [{
-                    type: 'time',
-                    distribution: 'series',
-                    ticks: {
-                        source: 'labels'
-                    }
-                }],
-                yAxes: [{
-                    scaleLabel: {
+        }
+        const options = {
+            type: 'line',
+            data: cfg,
+            options: {
+                fill: false,
+                responsive: true,
+                scales: {
+                    xAxes: [{
+                        type: 'time',
                         display: true,
-                        labelString: 'Closing price ($)'
-                    }
-                }]
+                        scaleLabel: {
+                            display: true,
+                            labelString: "Date",
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        },
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString,
+                        }
+                    }]
+                }
             }
         }
-    };
-    var chart = new Chart(ctx, cfg);
+        const chart = new Chart(ctx, options);
+    }
+    function plot(date, label_datas, data_date, id, label, labelString) {
+        let { labels, data } = getDataLabels(date, label_datas,data_date);
+        console.log(data);
+        createGraph(id, label, labelString, data, labels);
+    }
+    plot(date, favourites, date_favourites, "SeriesTweet", "Favourite", "Favourites");
+    plot(date, retweets, date_retweets, "SeriesFav", "Retweet", "Retweets");
+    // { labels, data } = getDataLabels(date, retweets,date_retweets);
+    // createGraph("SeriesFav", "Favourite", "Favourites", data, labels);
+
 
 
 

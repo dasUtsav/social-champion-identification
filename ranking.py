@@ -8,7 +8,6 @@ class Ranking:
         filters = ['influence', 'moiScore', 'topic_relevance']
         for filter in filters:
             self.dataframe = self.normalize(self.dataframe, filter)
-        print("Normalized dataframe")
 
     @staticmethod
     def normalize(df, column):

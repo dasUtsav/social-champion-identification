@@ -41,7 +41,7 @@
         data: {
             labels: ["Influence", "MOI", "Topic Relevance"],
             datasets: [{
-                label: '# of Votes',
+                label: 'Score',
                 data: [{% for key, value in stats %}
                                 {{ value }},
                             {% endfor %} ],

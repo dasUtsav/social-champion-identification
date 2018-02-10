@@ -57,8 +57,12 @@
                     <table class="table table-striped leaderboard">
                         <thead>
                             <tr>
-                                <th colspan="2">{{data['query'].capitalize()}}</th>
-                                <th>Score</th>
+                                <th colspan="3">{{data['query'].capitalize()}}</th>
+                            </tr>
+                            <tr>
+                                    <th></th>
+                                    <th colspan="" style="text-align:left;">Candidates</th>
+                                    <th>Score</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -100,7 +104,7 @@
 
 </div>
 
-<script>
+<!-- <script>
     $(function () {
         function moveItems(origin, dest) {
             $(origin).find(':selected').appendTo(dest);
@@ -139,4 +143,4 @@
         });
     });
 
-</script> {% endblock %}
+</script> {% endblock %} -->

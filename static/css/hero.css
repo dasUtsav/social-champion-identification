@@ -9,6 +9,7 @@ header {
     top: 0;
     left: 0;
     background: url("https://assets.entrepreneur.com/content/3x2/1300/20170926163842-GettyImages-543082622.jpeg");
+    background-size: cover;
     opacity: 0.7;
     filter: blur(2px);
 }

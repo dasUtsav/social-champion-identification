@@ -1,20 +1,19 @@
 import json
-import pickle
 import math
 import pandas as pd
 import bcrypt
 import os
 import mongo
-from operator import itemgetter
+import re
 from flask import Flask, request, render_template, redirect, url_for, session    
 from twitter import Twitter
-from collections import namedtuple
 from elasticsearch import Elasticsearch
 from ranking import Ranking
 from classes.TwitterGraph import TwitterGraph
 from classes.TopicInfluence import TopicInfluence
 from classes.MOI import MOI
 from Instances import ldamodelInstance, twitterInstance
+from classes.utility import fetchTimeSeries
 
 config = json.load(open("config.json", 'r'))
 
@@ -87,7 +86,7 @@ def getRank():
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screen_names = ["kyoag", "ChildAbuse_Sol", "ms_tina_tina", "mike_salter"]
+    screen_names = ["kyoag", "ChildAbuse_Sol", "ms_tina_tina", "mike_salter", "BillGates"]
 
     candidates = []
 
@@ -112,12 +111,11 @@ def getRank():
             rankings = []
             query = query_dict['name']
             for candidate in candidates:
-                candidateTweets = twitterGraph.fetch_tweets(candidate['id'], twitterFetch["max_tweets"])
+                candidateTweets = twitterGraph.fetch_preprocessed_tweets(candidate['id'], twitterFetch["max_tweets"])
                 candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
             
         ranking = Ranking(candidates)
         ranking.rank()
-
         rank_list = ranking.dataframe.to_dict(orient='records')
 
         final_ranks.append({
@@ -138,7 +136,15 @@ def graphs():
         'topic_relevance': float(request.args.get('topic_relevance')) * 100,
     }
     ranks = sorted(ranks.items())
-    return render_template('graphs.html', screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
+    user.profile_image_url = re.sub(r'_normal', '', user.profile_image_url)
+
+    tweets, retweets = twitterGraph.fetch_favorites(user.id, twitterFetch['max_tweets'])
+    tweet_time_series, retweet_time_series = fetchTimeSeries(tweets, 'count'), fetchTimeSeries(retweets, 'count')
+    tweet_time_series, retweet_time_series = sorted(tweet_time_series['count'].items()), sorted(retweet_time_series['count'].items())
+    print(retweet_time_series)
+    return render_template('graphs.html', tweet_time_series=tweet_time_series, 
+                            retweet_time_series=retweet_time_series,
+                            screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 
 @app.route('/login', methods = ["POST", "GET"])
 def login():

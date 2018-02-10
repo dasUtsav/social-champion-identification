@@ -13,6 +13,7 @@ Identifying a social champion using the concepts of natural language processing
 
 ```sh
 $ pip3 install -r requirements.txt
+$ python -m spacy download en
 ```
 
 ### Starting the environment

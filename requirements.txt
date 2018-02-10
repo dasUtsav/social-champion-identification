@@ -8,3 +8,4 @@ pandas
 gensim
 flask
 textblob
+newspaper3k

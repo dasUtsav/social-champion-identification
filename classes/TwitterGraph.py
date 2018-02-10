@@ -59,15 +59,20 @@ class TwitterGraph:
 
         self.write_pickle()
 
+    def fetch_preprocessed_tweets(self, screen_id, max_tweets):
+        tweets = self.fetch_tweets(screen_id, max_tweets)
+        text_retrieve = Text_retrieve(tweets)
+        tweet_doc = text_retrieve.lemmatize()
+        return tweet_doc
+    
     def fetch_tweets(self, screen_id, max_tweets):
         if self.G.node[screen_id]['isRetrieve'] == False:
             tweets = self.fetch_and_store(screen_id, max_tweets)
         else:
             tweets = mongo.twitterCollection.find({'user_id': screen_id})
             tweets = [tweet for tweet in tweets]
-        text_retrieve = Text_retrieve(tweets)
-        tweet_doc = text_retrieve.lemmatize()
-        return tweet_doc
+            tweets = tweets[:max_tweets]
+        return tweets
 
     def fetch_user(self, screen_name=None, id=None):
         assert (id is not None or screen_name is not None)
@@ -92,17 +97,17 @@ class TwitterGraph:
     def fetch_favorites(self, screen_id, max_tweets):
         if self.G.node[screen_id]['isRetrieve'] == False:
             tweets = self.fetch_and_store(screen_id, max_tweets)
-            favorite_counts = [tweet.favorite_count for tweet in tweets]
-            retweet_counts = [{'count': tweet.retweet_count, 'isRetweet': tweet.isRetweet} for tweet in tweets]
+            favorite_counts = [{'count': tweet.favorite_count, 'created_at': tweet.created_at} for tweet in tweets]
+            retweet_counts = [{'count': tweet.retweet_count, 'isRetweet': tweet.isRetweet, 'created_at': tweet.created_at} for tweet in tweets]
         else:
-            tweets = mongo.twitterCollection.find({'user_id': screen_id})
+            tweets = self.fetch_tweets(screen_id, max_tweets)
             tweets = [tweet for tweet in tweets]
-            favorite_counts = [tweet['favorite_count'] for tweet in tweets]
-            retweet_counts = [{'count': tweet['retweet_count'], 'isRetweet': tweet['isRetweet']} for tweet in tweets]
+            favorite_counts = [{'count': tweet['favorite_count'], 'created_at': tweet['created_at']} for tweet in tweets]
+            retweet_counts = [{'count': tweet['retweet_count'], 'created_at': tweet['created_at'], 'isRetweet': tweet['isRetweet']} for tweet in tweets]
         return favorite_counts, retweet_counts
 
     def set_tweet_doc(self, screen_id, max_tweets):
-        tweet_doc = self.fetch_tweets(screen_id, max_tweets)
+        tweet_doc = self.fetch_preprocessed_tweets(screen_id, max_tweets)
         # self.G.node[screen_id]['tweet_doc'] = [word for tweet in tweet_doc for word in tweet]
         self.G.node[screen_id]['tweet_doc'] = tweet_doc
         return tweet_doc

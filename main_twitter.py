@@ -54,7 +54,7 @@ twitterGraph.write_pickle()
 
 # twitterGraph.write_pickle()
 
-# tweet_doc = twitterGraph.fetch_tweets(candidates[0], max_tweets)
+# tweet_doc = twitterGraph.fetch_preprocessed_tweets(candidates[0], max_tweets)
 
 # ldamodel = LDAModeling("ldamodel.pickle")
 # ldamodel.loadPickle()

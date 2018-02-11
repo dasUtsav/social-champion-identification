@@ -31,7 +31,7 @@ def fetch_from_article(url, filename):
 # fetch_from_article("http://www.cnn.com/2017/11/29/asia/china-kindergarten-abuse-scandal/index.html", "healthddd-care-2.txt")
 
 def fetch_article(query, maxFetch):
-    all_articles = newsapi.get_everything(q='child abuse',
+    all_articles = newsapi.get_everything(q=query,
                                       sources='cnn',
                                       sort_by='relevancy')
     articles_url = [article['url'] for article in all_articles['articles']]
@@ -40,4 +40,4 @@ def fetch_article(query, maxFetch):
         timeStamp = str(unixTimeSeconds(datetime.datetime.now(), True))
         fetch_from_article(articles_url[i], baseFileName + "-" + timeStamp + ".txt")
 
-fetch_article("child abuse", 5)
+# fetch_article("health care", 10)

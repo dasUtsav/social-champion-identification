@@ -3,18 +3,19 @@
 
 <div class="container text-center" style="padding: 50px 0px 100px 0px">
 
-    {% if final_ranks is defined %} {% if pending_topics|length > 0 %}
-    <div class="row">
-        <div class="col-sm-12 alert alert-info alert-dismissible fade show" role="alert">
-            <p>
-                {% for pending_topic in pending_topics %} {{pending_topic.capitalize()}}, {% endfor %} is not present in the training corpus
-                at the moment. We will revert back shortly! :)
-            </p>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+    {% if final_ranks is defined %} 
+    {% if pending_topics|length > 0 %}
+        <div class="row">
+            <div class="col-sm-12 alert alert-info alert-dismissible fade show" role="alert">
+                <p>
+                    {% for pending_topic in pending_topics %} {{pending_topic.capitalize()}}, {% endfor %} is not present in the training corpus
+                    at the moment. We will revert back shortly! :)
+                </p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         </div>
-    </div>
     {% endif %}
 
     <img src="http://www.madelinejaeger.com/wp-content/uploads/2016/05/leaderboard_screenshot_2.jpg" alt="leaderboards" height="300px"
@@ -74,9 +75,9 @@
                                 <td>{{loop.index}}</td>
 
                                 <td>
-                                    <a href="/rank/graphs?id={{ dict_item['id'] }}&topic_name={{data['query']}}&moiScore={{dict_item['moiScore']}}&influence={{dict_item['influence']}}&topic_relevance={{dict_item['topic_relevance']}}"
+                                    <a href="/rank/graphs?id={{ dict_item['id'] }}&topic_name={{data['query']}}&moiScore={{dict_item['moiScore']}}&influence={{dict_item['influence']}}&name={{dict_item['name']}}&topic_relevance={{dict_item['topic_relevance']}}"
                                         class="links">
-                                        <img class="profile_image" src="{{dict_item['image_url']}}" height="50em" width="50em" alt="TEST">{{dict_item['screen_name']}}
+                                        <img class="profile_image" src="{{dict_item['image_url']}}" height="50em" width="50em" alt="TEST">{{dict_item['name']}}
                                     </a>
                                 </td>
                                 <td style="text-align:center">{{ finalRank }}</td>

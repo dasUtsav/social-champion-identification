@@ -86,14 +86,17 @@ def getRank():
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screen_names = ["kyoag", "ChildAbuse_Sol", "ms_tina_tina", "mike_salter", "BillGates"]
+    df = pd.read_csv("./handles.csv")
+    screen_names = df.values.tolist()
+    # screen_names = ["kyoag", "ChildAbuse_Sol", "ms_tina_tina", "mike_salter", "BillGates"]
 
     candidates = []
 
     for screen_name in screen_names:
-        res = twitterGraph.fetch_user(screen_name)
+        res = twitterGraph.fetch_user(screen_name[1])
         candidates.append({'id': res.id, 
-                           'screen_name': screen_name,
+                           'screen_name': screen_name[1],
+                           'name': screen_name[0],
                            'topic_relevance': 0,
                            'image_url': res.profile_image_url})
 
@@ -128,6 +131,7 @@ def getRank():
 @app.route('/rank/graphs')
 def graphs():
     id = request.args.get('id')
+    name = request.args.get('name')
     query = request.args.get('topic_name')
     user = twitterGraph.fetch_user(id=id)
     ranks = {
@@ -144,6 +148,7 @@ def graphs():
     print(retweet_time_series)
     return render_template('graphs.html', tweet_time_series=tweet_time_series, 
                             retweet_time_series=retweet_time_series,
+                            name=name,
                             screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 
 @app.route('/login', methods = ["POST", "GET"])

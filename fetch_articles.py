@@ -39,3 +39,5 @@ def fetch_article(query, maxFetch):
     for i in range(0, maxFetch):
         timeStamp = str(unixTimeSeconds(datetime.datetime.now(), True))
         fetch_from_article(articles_url[i], baseFileName + "-" + timeStamp + ".txt")
+
+fetch_article("child abuse", 5)

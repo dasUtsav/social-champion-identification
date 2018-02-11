@@ -23,12 +23,11 @@ def fetch_from_article(url, filename):
         article_text = re.sub(r"See also", "", article_text)
         article_text = re.sub(r"Main article:.*", "", article_text)
         article_text = re.sub(r"Photo\n", "", article_text)
+        article_text = re.sub(r"\n+", "\n", article_text)
         with codecs.open('./articles/' + filename, 'w', 'utf-8') as f:
             f.write(article_text)
     except:
         print("Could not download file")
-
-# fetch_from_article("http://www.cnn.com/2017/11/29/asia/china-kindergarten-abuse-scandal/index.html", "healthddd-care-2.txt")
 
 def fetch_article(query, maxFetch):
     all_articles = newsapi.get_everything(q=query,
@@ -41,3 +40,6 @@ def fetch_article(query, maxFetch):
         fetch_from_article(articles_url[i], baseFileName + "-" + timeStamp + ".txt")
 
 # fetch_article("health care", 10)
+fetch_from_article("https://en.wikipedia.org/wiki/Sanitation", "sanitation.txt")
+fetch_from_article("https://en.wikipedia.org/wiki/Health_care", "health-care.txt")
+fetch_from_article("https://en.wikipedia.org/wiki/Child_abuse", "child-abuse.txt")

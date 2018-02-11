@@ -12,7 +12,10 @@
     },
     "topic_modeling": {
         "num_topics": 10,
-        "model_name": "ldamodel.pickle"
+        "model_name": "ldamodel.pickle",
+        "num_article_topics": 20,
+        "num_iterations": 15,
+        "num_words": 10
     },
     "elasticsearch": {
         "host": "localhost",

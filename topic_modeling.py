@@ -23,13 +23,20 @@ class LDAModeling:
         self.topics = []
         self.num_topics = num_topics
         self.num_words = num_words
+        self.num_passes = num_passes
         for topic in self.model.print_topics(num_topics=num_topics, num_words=num_words):
             self.topics.append(topic)
 
     def update(self, texts):
+        initDictLen = len(self.dictionary)
         self.dictionary.add_documents(texts)
         corpus = [self.dictionary.doc2bow(text) for text in texts]
-        self.model.update(corpus)
+        if initDictLen == len(self.dictionary):
+            print("No new vocab to add")
+            self.model.update(corpus)
+        else:
+            corpus = [self.dictionary.doc2bow(text) for text in texts]
+            self.model = ldamodel.LdaModel(corpus, num_topics=self.num_topics, id2word = self.dictionary, passes=self.num_passes)
         self.topics = []
         for topic in self.model.print_topics(num_topics=self.num_topics, num_words=self.num_words):
             self.topics.append(topic)     
@@ -67,14 +74,14 @@ class LDAModeling:
         return id[:noOfResults]
 
     def saveAsPickle(self):
-        topic_model_list = [self.model, self.topics, self.dictionary, self.num_topics, self.num_words]
+        topic_model_list = [self.model, self.topics, self.dictionary, self.num_topics, self.num_words, self.num_passes]
         with open(self.filename, 'wb') as pickleFile:
             pickle.dump(topic_model_list, pickleFile)
     
     def loadPickle(self):
         with open(self.filename, 'rb') as pickleFile:
             topic_model_list = pickle.load(pickleFile)
-            self.model, self.topics, self.dictionary, self.num_topics, self.num_words = topic_model_list
+            self.model, self.topics, self.dictionary, self.num_topics, self.num_words, self.num_passes = topic_model_list
 
     def analyze_sentiment(self, tweet):
         analysis = TextBlob(tweet)

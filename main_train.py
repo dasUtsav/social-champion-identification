@@ -1,10 +1,13 @@
 import codecs
 import spacy
+from glob import glob
 from text_cleansing_step1 import Text_retrieve
 from nltk.tokenize import sent_tokenize, RegexpTokenizer
 from nltk.corpus import stopwords
 from topic_modeling import LDAModeling
 from gensim.models import Phrases
+
+from configImports import topic_modeling
 
 
 # from spacy.en import English
@@ -44,18 +47,23 @@ def create_bigram(texts, word1, word2):
 ldamodel = LDAModeling("ldamodel.pickle")
 ldamodel.loadPickle()
 
-for i in range(1, 2):
-    texts = getTokenizedWords("./articles/health-care-" + str(i) + ".txt")
-    bigram = Phrases(texts)
+def trainModel():
+    articles = glob("./articles/*.txt")
+    final_texts = []
+    for article in articles:
+        texts = getTokenizedWords(article)
+        bigram = Phrases(texts)
+        texts = [bigram[line] for line in texts]
+        final_texts += texts
+    ldamodel.update(final_texts)
+    ldamodel.index()
+    ldamodel.deleteIndex()
+    ldamodel.index()
+    ldamodel.saveAsPickle()
 
-    texts = [bigram[line] for line in texts]
-
-    # ldamodel.train(texts, 20, 10, 10)
-    ldamodel.update(texts)
-
+# trainModel()
 ldamodel.index()
-ldamodel.deleteIndex()
-ldamodel.index()
+ldamodel.search("health care")
 
-ldamodel.saveAsPickle()
-print(ldamodel.topics)
+# ldamodel.saveAsPickle()
+# print(ldamodel.topics)

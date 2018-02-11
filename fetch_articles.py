@@ -40,6 +40,9 @@ def fetch_article(query, maxFetch):
         fetch_from_article(articles_url[i], baseFileName + "-" + timeStamp + ".txt")
 
 # fetch_article("health care", 10)
-fetch_from_article("https://en.wikipedia.org/wiki/Sanitation", "sanitation.txt")
-fetch_from_article("https://en.wikipedia.org/wiki/Health_care", "health-care.txt")
-fetch_from_article("https://en.wikipedia.org/wiki/Child_abuse", "child-abuse.txt")
+# fetch_from_article("https://en.wikipedia.org/wiki/Sanitation", "sanitation.txt")
+# fetch_from_article("https://en.wikipedia.org/wiki/Health_care", "health-care.txt")
+# fetch_from_article("https://en.wikipedia.org/wiki/Child_abuse", "child-abuse.txt")
+# fetch_article("child abuse", 10)
+# fetch_article("sanitation", 10)
+# fetch_article("health care", 10)

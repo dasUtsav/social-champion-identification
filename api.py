@@ -116,6 +116,7 @@ def getRank():
             for candidate in candidates:
                 candidateTweets = twitterGraph.fetch_preprocessed_tweets(candidate['id'], twitterFetch["max_tweets"])
                 candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
+                print("Topic relevance for query", query, candidate["topic_relevance"] )
             
             ranking = Ranking(candidates)
             ranking.rank()
@@ -125,7 +126,6 @@ def getRank():
                 'query': query,
                 'rank_list': rank_list
             })
-    print(pending_topics)
     return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
 
 @app.route('/rank/graphs')

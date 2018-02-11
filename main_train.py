@@ -61,9 +61,9 @@ def trainModel():
     ldamodel.index()
     ldamodel.saveAsPickle()
 
-# trainModel()
-ldamodel.index()
-ldamodel.search("health care")
+trainModel()
+# ldamodel.index()
+# ldamodel.search("health care")
 
 # ldamodel.saveAsPickle()
 # print(ldamodel.topics)

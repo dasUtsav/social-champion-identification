@@ -8,13 +8,18 @@ class Ranking:
         filters = ['influence', 'moiScore', 'topic_relevance']
         for filter in filters:
             self.dataframe = self.normalize(self.dataframe, filter)
+        print("Ranks are:-")
+        print(self.dataframe)
 
     @staticmethod
     def normalize(df, column):
         df = pd.DataFrame(df)
         max = df[column].max()
         min = 0
-        df[column] = (df[column] - min) / (max - min)
+        if max == 0:
+            df[column] = 0
+        else:
+            df[column] = (df[column] - min) / (max - min)
         return df
 
     def rank(self, filters=['influence', 'moiScore', 'topic_relevance']):

@@ -93,19 +93,22 @@ class LDAModeling:
             return -1
 
     def getTopicDistFromQuery(self, docs, query):
+        print("Query is", query)
         topic_ids = self.search(query)
         doc_topic_dist = self.topicDist(docs)
         print(doc_topic_dist)
         print(topic_ids)
-        final_topic_dist = 0
+        final_topic_dist = False
         divisor = 1
         for topic in topic_ids:
             if topic in doc_topic_dist:
                 final_topic_dist = doc_topic_dist[topic] / divisor
                 break
             divisor *= 2
-
-        return 0 if final_topic_dist is 0 else final_topic_dist.iloc[0]
+        if final_topic_dist is False:
+            return 0
+        else:
+            return final_topic_dist.iloc[0]
     
     def topicDist(self, docs):
         # textAndNoise = Text_retrieve(docs)

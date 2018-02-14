@@ -2,6 +2,10 @@ header {
     background: #000000 !important
 }
 
+.p-5 p {
+    text-align: justify;
+}
+
 .background-image {
     width: 100%;
     height: 100vh;

@@ -26,7 +26,6 @@ class TopicInfluence:
     def compute_rank(self, max_tweets, center_nodes = [], gamma=1, force_fetch=False):
         candidate_ranks = []
         updated_center_nodes = list(center_nodes)
-        print(center_nodes)
         if force_fetch is False:
             for center_node in center_nodes:
                 if 'influence' in self.twitterGraph.G.node[center_node]:

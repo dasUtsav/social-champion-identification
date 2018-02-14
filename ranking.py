@@ -1,11 +1,14 @@
 import pandas as pd
 import pickle
 import numpy as np
+import scipy
 
 class Ranking:
     def __init__(self, ranks):
         self.dataframe = pd.DataFrame(ranks)
         filters = ['influence', 'moiScore', 'topic_relevance']
+        print("Before filter")
+        print(self.dataframe)
         for filter in filters:
             self.dataframe = self.normalize(self.dataframe, filter)
         print("Ranks are:-")
@@ -15,7 +18,9 @@ class Ranking:
     def normalize(df, column):
         df = pd.DataFrame(df)
         max = df[column].max()
-        min = 0
+        min = df[column].min()
+        # if column != 'topic_relevance':
+        #     min = 0
         if max == 0:
             df[column] = 0
         else:

@@ -63,7 +63,7 @@ def addTopics():
             'name': interest['name']
             }, interest
              , True)
-
+    print("ggwp", interest_list)
     return render_template('upload_candidates.html')
             
 @app.route('/addprofile', methods=['POST'])
@@ -88,7 +88,6 @@ def getRank():
     final_ranks = []
     df = pd.read_csv("./handles.csv")
     screen_names = df.values.tolist()
-    # screen_names = ["kyoag", "ChildAbuse_Sol", "ms_tina_tina", "mike_salter", "BillGates"]
 
     candidates = []
 
@@ -108,24 +107,25 @@ def getRank():
     
     for query_dict in queries:
         topic_dist = 0
+        query = query_dict['name']
         if query_dict['isPresent'] == False:
             pending_topics.append(query_dict['name'])
+            for candidate in candidates:
+                candidate["topic_relevance"] = 0
         else:
             rankings = []
-            query = query_dict['name']
             for candidate in candidates:
                 candidateTweets = twitterGraph.fetch_preprocessed_tweets(candidate['id'], twitterFetch["max_tweets"])
                 candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
-                print("Topic relevance for query", query, candidate["topic_relevance"] )
             
-            ranking = Ranking(candidates)
-            ranking.rank()
-            rank_list = ranking.dataframe.to_dict(orient='records')
+        ranking = Ranking(candidates)
+        ranking.rank()
+        rank_list = ranking.dataframe.to_dict(orient='records')
 
-            final_ranks.append({
-                'query': query,
-                'rank_list': rank_list
-            })
+        final_ranks.append({
+            'query': query,
+            'rank_list': rank_list
+        })
     return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
 
 @app.route('/rank/graphs')
@@ -145,7 +145,6 @@ def graphs():
     tweets, retweets = twitterGraph.fetch_favorites(user.id, twitterFetch['max_tweets'])
     tweet_time_series, retweet_time_series = fetchTimeSeries(tweets, 'count'), fetchTimeSeries(retweets, 'count')
     tweet_time_series, retweet_time_series = sorted(tweet_time_series['count'].items()), sorted(retweet_time_series['count'].items())
-    print(retweet_time_series)
     return render_template('graphs.html', tweet_time_series=tweet_time_series, 
                             retweet_time_series=retweet_time_series,
                             name=name,
@@ -158,7 +157,6 @@ def login():
         login_user = user.find_one({ 'name' : request.form['username']})
 
         if login_user:
-            print(login_user)
             if bcrypt.hashpw(request.form["pwd"].encode('utf-8'), login_user["password"]) == login_user["password"]:
                 session['username'] = request.form['username']
                 redirect(url_for('success'))

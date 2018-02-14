@@ -1,4 +1,5 @@
- {% extends 'index.html' %} {% block head %}
+ {% extends 'index.html' %} 
+ {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"> {% endblock %} {% block body %}
 
 <div class="container text-center" style="padding: 50px 0px 100px 0px">
@@ -21,32 +22,44 @@
     <img src="http://www.madelinejaeger.com/wp-content/uploads/2016/05/leaderboard_screenshot_2.jpg" alt="leaderboards" height="300px"
         width="300px">
 
-    <hr>
-
     <div class="row">
-        <!-- <div class="col-sm-3">
-            <h2>Filters</h2>
-            <select class="list-group" id="sbOne" multiple="multiple">
-                <option class="list-group-item" value="likes">Likes</option>
-                <option class="list-group-item" value="retweets">Retweets</option>
-                <option class="list-group-item" value="urls">URL</option>
-                <option class="list-group-item" value="topic_relevance">Topic Relevance</option>
-                <option class="list-group-item" value="hashtags">Hashtags</option>
-                <option class="list-group-item" value="sentiment">Sentiment</option>
-            </select>
+        <div class="col-sm-6 influence">
+                <table class="table table-striped leaderboard">
+                    <thead>
+                        <tr>
+                            <th colspan="3">Influence</th>
+                        </tr>
+                        <tr>
+                                <th></th>
+                                <th colspan="" style="text-align:left;">Candidates</th>
+                                <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-            <select class="" id="sbTwo" multiple="multiple"></select>
-            <br>
 
-            <div class="btn-group">
-                <input class="btn btn-secondary" type="button" id="left" value="<" />
-                <input class="btn btn-secondary" type="button" id="right" value=">" />
-                <input class="btn btn-secondary" type="button" id="leftall" value="<<" />
-                <input class="btn btn-secondary" type="button" id="rightall" value=">>" />
-            </div>
-            <input class="btn btn-success" id="queryForm" type="button" value="Filter" id="submit" />
-        </div> -->
+                        {% for dict_item in influenceRanks %}
+                        {% set finalRank = (dict_item['rank']*100)|int %}
+                        <tr>
+                            <td>{{loop.index}}</td>
 
+                            <td>
+                                <a href="/rank/graphs?id={{ dict_item['id'] }}&topic_name=Influence&moiScore={{dict_item['moiScore']}}&influence={{dict_item['influence']}}&name={{dict_item['name']}}&topic_relevance={{dict_item['topic_relevance']}}"
+                                    class="links">
+                                    <img class="profile_image" src="{{dict_item['image_url']}}" height="50em" width="50em" alt="TEST">{{dict_item['name']}}
+                                </a>
+                            </td>
+                            <td style="text-align:center">{{ finalRank }}</td>
+
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
         <div class="col-sm-12">
             <div class="flex-container">
 
@@ -104,44 +117,4 @@
 
 
 </div>
-
-<!-- <script>
-    $(function () {
-        function moveItems(origin, dest) {
-            $(origin).find(':selected').appendTo(dest);
-        }
-
-        function moveAllItems(origin, dest) {
-            $(origin).children().appendTo(dest);
-        }
-
-        $('#left').click(function () {
-            moveItems('#sbTwo', '#sbOne');
-        });
-
-        $('#right').on('click', function () {
-            moveItems('#sbOne', '#sbTwo');
-        });
-
-        $('#leftall').on('click', function () {
-            moveAllItems('#sbTwo', '#sbOne');
-        });
-
-        $('#rightall').on('click', function () {
-            moveAllItems('#sbOne', '#sbTwo');
-        });
-        $("#queryForm").click((event) => {
-            event.preventDefault()
-            let filters = []
-            for (var i = 0; i < $('select#sbTwo option').length; i++) {
-                filters.push($('select#sbTwo option')[i].value)
-            }
-            let data = {
-                "query": $('#query').val(),
-                "filters": filters
-            };
-            $.redirect('http://localhost:8000/rank', data);
-        });
-    });
-
-</script> {% endblock %} -->
+{% endblock %}

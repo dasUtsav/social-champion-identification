@@ -105,6 +105,23 @@ def getRank():
         candidates[i] = dict(candidates[i], **rank)
         candidates[i]["moiScore"] = moi.fetch_moi_score(candidates[i]['id'], twitterFetch["max_tweets"])
     
+    ranking = Ranking(candidates, filters = ['influence', 'moiScore'])
+
+    weightages = {
+        'influence': 0.5,
+        'moiScore': 0.5
+    }
+    
+    ranking.rank(weightages)
+
+    influenceRanks = ranking.dataframe.to_dict(orient='records')
+    print("Influence ranks")
+    print(influenceRanks)
+    weightages = {
+        'influence': 0.25,
+        'moiScore': 0.25,
+        'topic_relevance': 0.5
+    }
     for query_dict in queries:
         topic_dist = 0
         query = query_dict['name']
@@ -119,14 +136,16 @@ def getRank():
                 candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
             
         ranking = Ranking(candidates)
-        ranking.rank()
+        ranking.rank(weightages)
         rank_list = ranking.dataframe.to_dict(orient='records')
 
         final_ranks.append({
             'query': query,
             'rank_list': rank_list
         })
-    return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
+    return render_template("form.html", final_ranks = final_ranks, 
+                            pending_topics = pending_topics, 
+                            influenceRanks=influenceRanks)
 
 @app.route('/rank/graphs')
 def graphs():

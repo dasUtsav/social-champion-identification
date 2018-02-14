@@ -47,16 +47,18 @@
 
 .flex-container{
     display: flex;
-    /* justify-content:center; */
+    justify-content:space-around;
     flex-wrap: wrap;
     
 }
 
 .box{
-    flex-grow: 1;
     /* min-height: 490px; */
     margin: 0 1em;
-    min-width: 200px;
+    min-width: 400px;
 }
 
+.influence {
+    margin: auto;
+}
 

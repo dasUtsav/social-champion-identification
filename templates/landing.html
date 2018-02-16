@@ -51,8 +51,9 @@
             if ($('#query').val().length === 0)
                 return;
             $('#interest').append(`
+
                 <li class="list-group-item list-flex" id="list-item-${interestIndex}">
-                    ${$('#query').val()}
+                    <span class="text">${$('#query').val()}</span>
                     <button type="button" class="close" aria-label="Close" onclick="deleteQuery(event)">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -63,8 +64,9 @@
 
         $('#final_submit').click(function () {
             let interest = []
-            for (var i = 0; i < $('#interest li').length; i++) {
-                interest.push($('#interest li')[i].innerHTML)
+            // $('#interest')[0].children[0].childNodes[1].innerHTML
+            for (var i = 0; i < $('#interest li .text').length; i++) {
+                interest.push($('#interest li .text')[i].innerHTML)
             }
             if (interest.length === 0) 
                 return;

@@ -63,7 +63,7 @@ def addTopics():
             'name': interest['name']
             }, interest
              , True)
-    print("ggwp", interest_list)
+
     return render_template('upload_candidates.html')
             
 @app.route('/addprofile', methods=['POST'])
@@ -104,7 +104,6 @@ def getRank():
                            candidate['id'] for candidate in candidates])
     for i, rank in enumerate(ranks):
         candidates[i] = dict(candidates[i], **rank)
-        print(candidates[i]['id'], candidates[i]['screen_name'])
         candidates[i]["moiScore"] = moi.fetch_moi_score(candidates[i]['id'], twitterFetch["max_tweets"])
     
     ranking = Ranking(candidates, filters = ['influence', 'moiScore'])
@@ -120,9 +119,9 @@ def getRank():
     print("Influence ranks")
     print(influenceRanks)
     weightages = {
-        'influence': 0.25,
-        'moiScore': 0.25,
-        'topic_relevance': 0.5
+        'influence': 0.125,
+        'moiScore': 0.125,
+        'topic_relevance': 0.75
     }
     for query_dict in queries:
         topic_dist = 0
@@ -156,20 +155,15 @@ def graphs():
     name = request.args.get('name')
     query = request.args.get('topic_name')
     user = twitterGraph.fetch_user(id=id)
+    filters = [('Topic sensitive Influence', 'influence'), ('MOI', 'moiScore'), ('Topic Relevance', 'topic_relevance')]
     try:
-        ranks = {
-            'influence': float(request.args.get('influence')) * 100,
-            'moiScore': float(request.args.get('moiScore')) * 100,
-            'topic_relevance': float(request.args.get('topic_relevance')) * 100,
-        }
+        ranks = {}
+        for filter in filters:
+            ranks[filter[1]] = (filter[0], float(request.args.get(filter[1])) * 100)
     except:
-        ranks = {
-            'influence': float(request.args.get('influence')) * 100,
-            'moiScore': float(request.args.get('moiScore')) * 100
-        }
+        print("Influence")
     ranks = sorted(ranks.items())
     user.profile_image_url = re.sub(r'_normal', '', user.profile_image_url)
-
     tweets, retweets = twitterGraph.fetch_favorites(user.id, twitterFetch['max_tweets'])
     tweet_time_series, retweet_time_series = fetchTimeSeries(tweets, 'count'), fetchTimeSeries(retweets, 'count')
     tweet_time_series, retweet_time_series = sorted(tweet_time_series['count'].items()), sorted(retweet_time_series['count'].items())

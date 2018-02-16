@@ -36,12 +36,11 @@
         
         $("#queryForm").submit((event) => {
             event.preventDefault()
-           
             $('#interest').append('<li class="list-group-item">'+ $('#query').val() + '</li>')
+            $('#query').val("");
         });
 
         $('#final_submit').click(function () {
-            
             let interest = []
             for (var i = 0; i < $('#interest li').length; i++) {
                 interest.push($('#interest li')[i].innerHTML)
@@ -49,14 +48,6 @@
             
             $.redirect('http://localhost:8000/addtopics', interest);
         });
-
-        
-            
-
-            
-            
-        
-
 </script>
 
 {% endblock %}

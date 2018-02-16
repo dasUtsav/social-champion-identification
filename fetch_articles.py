@@ -48,4 +48,6 @@ def fetch_article(query, maxFetch):
 # fetch_article("sanitation", 10)
 # fetch_article("health care", 10)
 # fetch_article("education", 10)
-fetch_article("toilet", 10)
+# fetch_article("toilet", 10)
+# fetch_from_article("https://en.wikipedia.org/wiki/Waste_management", "waste-management.txt")
+# fetch_article("waste management", 10)

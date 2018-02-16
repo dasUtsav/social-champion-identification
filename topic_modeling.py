@@ -69,8 +69,6 @@ class LDAModeling:
         if not res['hits']['hits']:
             return False
         id = [int(topic['_id']) for topic in res['hits']['hits']]
-        print("Id is")
-        print(id)
         return id[:noOfResults]
 
     def saveAsPickle(self):
@@ -96,12 +94,14 @@ class LDAModeling:
         print("Query is", query)
         topic_ids = self.search(query)
         doc_topic_dist = self.topicDist(docs)
-        # print(doc_topic_dist)
+        print(doc_topic_dist)
         # print(topic_ids)
         # print("Topic dist of", query)
         topic_id_2 = self.topicDist([query.split(" ")]).idxmax(axis=1).iloc[0]
         # print(topic_id_2)
         topic_ids = [topic_id_2]
+        print("Id is")
+        print(topic_ids)
         final_topic_dist = False
         divisor = 1
         for topic in topic_ids:

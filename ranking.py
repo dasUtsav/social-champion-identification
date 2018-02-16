@@ -13,13 +13,14 @@ class Ranking:
     @staticmethod
     def normalize(df, column):
         max_vals = {
-            'influence': 1180,
-            'moiScore': 0.165,
-            'topic_relevance': 1
+            'influence': 1080,
+            'moiScore': 0.05,
+            'topic_relevance': 0.8
         }
         df = pd.DataFrame(df)
         max = max_vals[column]
         min = 0
+        print("Max", df[column].max())
         if max == 0:
             df[column] = 0
         else:

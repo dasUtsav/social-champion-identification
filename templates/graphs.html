@@ -42,11 +42,11 @@
     var myChart = new Chart(ctx, {
         type: 'horizontalBar',
         data: {
-            labels: [{% for key, value in stats %}"{{ key }}",{% endfor %}],
+            labels: [{% for key, value in stats %}"{{ value[0] }}",{% endfor %}],
             datasets: [{
                 label: 'Score',
                 data: [{% for key, value in stats %}
-                                {{ value }},
+                                {{ value[1] }},
                             {% endfor %} ],
     backgroundColor: [
         'rgba(255, 99, 132, 0.2)',
@@ -181,7 +181,7 @@
     }
     function plot(date, label_datas, data_date, id, label, labelString) {
         let { labels, data } = getDataLabels(date, label_datas,data_date);
-        console.log(data);
+        console.log(data_date);
         createGraph(id, label, labelString, data, labels);
     }
     plot(date, favourites, date_favourites, "SeriesTweet", "Favourite", "Favourites");

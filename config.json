@@ -7,7 +7,7 @@
     },
     "twitterFetch": {
         "max_followers": 15,
-        "max_tweets": 20,
+        "max_tweets": 100,
         "max_follower_friends": 10
     },
     "topic_modeling": {

@@ -56,7 +56,7 @@ class TwitterGraph:
                                 isRetrieve = False)
                 if not self.G.has_edge(user.id, friend.id):
                     self.G.add_edge(user.id, friend.id, retweets=0)
-
+        print("Successfully fetched", screen_name)
         self.write_pickle()
 
     def fetch_preprocessed_tweets(self, screen_id, max_tweets):

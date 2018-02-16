@@ -34,7 +34,9 @@ class Twitter:
         try:
             for status in tweepy.Cursor(self.api.user_timeline, id=handle, tweet_mode='extended').items(limit):
                 tweet = Tweet(status._json)
-                tweets.append(tweet)
+                if status._json["lang"] == "en":
+                    tweets.append(tweet)
+                    
         except:
             tweets = []
         return tweets

@@ -8,13 +8,13 @@
     "twitterFetch": {
         "max_followers": 15,
         "max_tweets": 20,
-        "max_follower_friends": 5
+        "max_follower_friends": 10
     },
     "topic_modeling": {
         "num_topics": 10,
         "model_name": "ldamodel.pickle",
         "num_article_topics": 10,
-        "num_iterations": 35,
+        "num_iterations": 20,
         "num_words": 10
     },
     "elasticsearch": {

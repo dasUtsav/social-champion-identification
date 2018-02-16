@@ -76,6 +76,7 @@ def addProfile():
     for profile in handles:
         twitterGraph.add_candidate(profile, twitterFetch["max_followers"], 
                                    twitterFetch["max_follower_friends"])
+    twitterGraph.load_pickle()
     return redirect("/rank", code=200)
 
 @app.route('/rank', methods=['GET'])
@@ -103,6 +104,7 @@ def getRank():
                            candidate['id'] for candidate in candidates])
     for i, rank in enumerate(ranks):
         candidates[i] = dict(candidates[i], **rank)
+        print(candidates[i]['id'], candidates[i]['screen_name'])
         candidates[i]["moiScore"] = moi.fetch_moi_score(candidates[i]['id'], twitterFetch["max_tweets"])
     
     ranking = Ranking(candidates, filters = ['influence', 'moiScore'])
@@ -114,7 +116,7 @@ def getRank():
     
     ranking.rank(weightages)
 
-    influenceRanks = ranking.dataframe.to_dict(orient='records')
+    influenceRanks = ranking.dataframe.to_dict(orient='records')[:5]
     print("Influence ranks")
     print(influenceRanks)
     weightages = {
@@ -133,11 +135,12 @@ def getRank():
             rankings = []
             for candidate in candidates:
                 candidateTweets = twitterGraph.fetch_preprocessed_tweets(candidate['id'], twitterFetch["max_tweets"])
+                print(candidate["screen_name"])
                 candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
             
         ranking = Ranking(candidates)
         ranking.rank(weightages)
-        rank_list = ranking.dataframe.to_dict(orient='records')
+        rank_list = ranking.dataframe.to_dict(orient='records')[:5]
 
         final_ranks.append({
             'query': query,

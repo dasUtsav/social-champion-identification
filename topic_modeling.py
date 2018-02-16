@@ -96,8 +96,12 @@ class LDAModeling:
         print("Query is", query)
         topic_ids = self.search(query)
         doc_topic_dist = self.topicDist(docs)
-        print(doc_topic_dist)
-        print(topic_ids)
+        # print(doc_topic_dist)
+        # print(topic_ids)
+        # print("Topic dist of", query)
+        topic_id_2 = self.topicDist([query.split(" ")]).idxmax(axis=1).iloc[0]
+        # print(topic_id_2)
+        topic_ids = [topic_id_2]
         final_topic_dist = False
         divisor = 1
         for topic in topic_ids:
@@ -111,10 +115,8 @@ class LDAModeling:
             return final_topic_dist.iloc[0]
     
     def topicDist(self, docs):
-        # textAndNoise = Text_retrieve(docs)
-        # lemmatized = textAndNoise.lemmatize()
         docs = [[word for tweet in docs 
-              for word in tweet]]   
+              for word in tweet]]
         doc_bow = [self.dictionary.doc2bow(text) for text in docs]
         doc_sample = []
         topicVar = {}

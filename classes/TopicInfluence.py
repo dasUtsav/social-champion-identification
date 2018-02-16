@@ -38,6 +38,7 @@ class TopicInfluence:
             return candidate_ranks
         center_nodes = updated_center_nodes
         print("Length is not 0")
+        print(center_nodes)
         node_array = self.getNodeArray(center_nodes)
         num_topics = config["topic_modeling"]["num_topics"]
         rank_vector_len = len(node_array)
@@ -57,7 +58,9 @@ class TopicInfluence:
             self.twitterGraph.G.node[center_node]['influence'] = final_rank_vector[index]
         
         self.twitterGraph.reset_prop('tweet_doc', [])
+        print("Refetched successfully")
         self.twitterGraph.write_pickle()
+        self.twitterGraph.load_pickle()
         return candidate_ranks
 
     def getNodeArray(self, center_nodes=[]):

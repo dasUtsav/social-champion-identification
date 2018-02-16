@@ -1,21 +1,196 @@
-{% extends 'index.html' %} 
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"> {% endblock %}
+{% extends 'index.html' %} {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"> {% endblock %} {% block body %}
+<div class="container topic_name">
+    <h1 class="text-center">{{topic_name.capitalize()}}</h1>
 
-{% block body %}
-    <div class="container topic_name">
-        <h1 class="text-center">Topic_Name</h1>
-
-        <div class="container alert alert-primary userBox">
-            <p> <span><img class="profile_image"src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTF_erFD1SeUnxEpvFjzBCCDxLvf-wlh9ZuPMqi02qGnyyBtPWdE-3KoH3s"
-                height="60em" width="60em" alt="TEST"></span> <span style="font-size:2em">Candidate</span></p>
+    <div class="row jumbotron">
+        <div class="col-sm-4">
+            <div class="container userBox">
+                <img class="profile_image_graph"  src="{{image_url}}" height="200em" width="200em" alt="TEST">
+                <p  style="font-size:2em">{{name}}</p>
+                <p  style="font-size:1.5em">Followers: {{followers}}</p>
+            </div>
         </div>
+        <div class="col-sm-8">
+            <h3>Stats:</h3>
+            <canvas id="myChart" width="400"></canvas>
+        </div>
+    </div>
+    <div class="graphs-parent">
         <div class="graphs">
-            <h3>Time Series of Retweets over time</h3>
-            <img src="https://pbs.twimg.com/media/DTK2_qnX0AAYX7q.jpg" alt="tatti">
-            <h3>Time Series of favourite Count over time</h3>
-            <img src="https://pbs.twimg.com/media/DTK2_qnX0AAYX7q.jpg" alt="tatti">
+            <h2>Likes over time</h2>
+            <canvas id="SeriesTweet" width="400"></canvas>
+            <h2>Retweets over time</h2>
+            <canvas id="SeriesFav" width="400"></canvas>
         </div>
     </div>
 
-{% endblock %}
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+
+<!-- labels: [ "Influential Score", "Moi Score" ,"Topic Relevance"],
+                datasets: [{
+                    label: "Candidate",
+                    data: [ {% for key, value in stats %}
+                                {{ value }},
+                            {% endfor %} ], -->
+
+<script>
+    var ctx = document.getElementById("myChart");
+    ctx.height = 150;
+    var myChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: [{% for key, value in stats %}"{{ value[0] }}",{% endfor %}],
+            datasets: [{
+                label: 'Score',
+                data: [{% for key, value in stats %}
+                                {{ value[1] }},
+                            {% endfor %} ],
+    backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(30, 110, 0, 0.2)'
+    ],
+        borderColor: [
+            'rgba(255,99,132,1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(30, 110, 0, 1)'
+        ],
+            borderWidth: 1
+                }]
+            },
+    options: {
+        legend: {
+            display: false
+        },
+        scales: {
+            xAxes: [{
+                ticks: {
+                    min: 0,
+                    max: 100,
+                    beginAtZero: true
+                }
+            }],
+                yAxes: [{
+                    barPercentage: 0.4
+                }]
+        }
+    }
+        });
+</script>
+<script>
+    function randomNumber(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function randomBar(date, lastClose) {
+        var open = randomNumber(lastClose * .95, lastClose * 1.05);
+        var close = randomNumber(open * .95, open * 1.05);
+        var high = randomNumber(Math.max(open, close), Math.max(open, close) * 1.1);
+        var low = randomNumber(Math.min(open, close) * .9, Math.min(open, close));
+        return {
+            t: date.valueOf(),
+            y: close
+        };
+    }
+
+    var dateFormat = 'D/MM/YYYY';
+    var date = moment(new Date().toLocaleDateString(), dateFormat);
+    var favourites = [],
+        retweets = [];
+    var date_favourites = [],
+        date_retweets = [];
+    {% for key, value in tweet_time_series %}
+        date_favourites.push(moment.unix({{key}}).format(dateFormat));
+        favourites.push({{value}})
+    {% endfor %}
+    {% for key, value in retweet_time_series %}
+        date_retweets.push(moment.unix({{key}}).format(dateFormat));
+        retweets.push({{value}})
+    {% endfor %}
+
+    function getDataLabels(date, label_datas, date_data) {
+        let labels = [date],
+            data = [],
+            dateIndex = 0,
+            dateFormat = "";
+        for (var i = 0; i < 15; i++) {
+            dateFormat = date.format("D/MM/YYYY")
+            if((dateIndex = date_data.indexOf(dateFormat)) != -1 ) {
+                label_data = label_datas[dateIndex];
+                data.push(label_data)
+            } else {
+                data.push(0)
+            }
+            labels.push(date);
+            date = date.clone().subtract(1, 'd');
+        }
+        return {
+            labels,
+            data
+        }
+    }
+
+    function createGraph(id, label, labelString, data, labels) {
+        var ctx = document.getElementById(id).getContext("2d");
+        ctx.canvas.width = 1000;
+        ctx.canvas.height = 300;
+        const cfg = {
+            // Labels should be Date objects
+            labels,
+            datasets: [{
+                fill: false,
+                label,
+                data,
+                borderColor: '#fe8b36',
+                backgroundColor: '#fe8b36',
+                lineTension: 0,
+            }]
+        }
+        const options = {
+            type: 'line',
+            data: cfg,
+            options: {
+                fill: false,
+                responsive: true,
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: "Date",
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        },
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString,
+                        }
+                    }]
+                }
+            }
+        }
+        const chart = new Chart(ctx, options);
+    }
+    function plot(date, label_datas, data_date, id, label, labelString) {
+        let { labels, data } = getDataLabels(date, label_datas,data_date);
+        console.log(data_date);
+        createGraph(id, label, labelString, data, labels);
+    }
+    plot(date, favourites, date_favourites, "SeriesTweet", "Favourite", "Favourites");
+    plot(date, retweets, date_retweets, "SeriesFav", "Retweet", "Retweets");
+    // { labels, data } = getDataLabels(date, retweets,date_retweets);
+    // createGraph("SeriesFav", "Favourite", "Favourites", data, labels);
+
+
+
+
+</script> {% endblock %}

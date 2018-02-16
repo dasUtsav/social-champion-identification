@@ -1,151 +1,175 @@
 import json
-import mongo
-import pickle
 import math
 import pandas as pd
 import bcrypt
-from operator import itemgetter
+import os
+import mongo
+import re
 from flask import Flask, request, render_template, redirect, url_for, session    
 from twitter import Twitter
-from collections import namedtuple
 from elasticsearch import Elasticsearch
 from ranking import Ranking
-
-
-
+from classes.TwitterGraph import TwitterGraph
+from classes.TopicInfluence import TopicInfluence
+from classes.MOI import MOI
+from Instances import ldamodelInstance, twitterInstance
+from classes.utility import fetchTimeSeries
 
 config = json.load(open("config.json", 'r'))
 
-twitterCredentials = config['twitter']
-consumer_key = twitterCredentials['consumer_key']
-consumer_secret = twitterCredentials['consumer_secret']
-access_token = twitterCredentials['access_token']
-access_token_secret = twitterCredentials['access_token_secret']
+
+twitterGraph = TwitterGraph("twitterGraph.pickle")
+
+if os.path.isfile("twitterGraph.pickle"):
+    twitterGraph.load_pickle()
+else:
+    twitterGraph.write_pickle()
+
+# twitterGraph.resetRefetch()
+topicInfluence = TopicInfluence(twitterGraph)
+moi = MOI(twitterGraph)
 
 
-with open('lsimodel.pickle', 'rb') as f:
-    lsimodel = pickle.load(f)
-lsimodel.index()
+#Config variables
+twitterFetch = config["twitterFetch"]
+
 
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/addtopics', methods=['GET'])
 def success():
-    if 'username' in session:
-        return render_template('landing.html')
-    return redirect(url_for('login'))
+    return render_template('landing.html')
+    # if 'username' in session:
+    #     return render_template('landing.html')
+    # return redirect(url_for('login'))
         
 
-@app.route('/check', methods=['POST'])
-def check():
-    flag = False
+@app.route('/addtopics', methods=['POST'])
+def addTopics():
+
     interest_list = []
     
-    elasticConfig = config['elasticsearch']
     interests = [request.form[key] for key in request.form.keys()]
     for item in interests:
         topic = { 'name' : item, 'isPresent': False}
-        res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": item}}})
-        if res['hits']['hits']:
+        res = ldamodelInstance.search(item)
+        if res is not False:
             topic['isPresent'] = True
-            flag = True
         interest_list.append(topic)
 
-    # print(interest_list)
-
     for interest in interest_list:
-        mongo.topicCollection.insert(interest)
+        mongo.topicCollection.update({
+            'name': interest['name']
+            }, interest
+             , True)
 
-    if flag is True:
-        return render_template('upload_candidates.html')
-    else:
-        return "We will now train our solution in these domains. We will revert back to you shortly!"
+    return render_template('upload_candidates.html')
             
 @app.route('/addprofile', methods=['POST'])
 def addProfile():
-    # profile = request.form['profile']
-    if 'handles' not in request.files:
-        flash('No handles part')
-        return redirect(request.url)
+    print(request.files)
     csvFile = pd.read_csv(request.files['handles'])
     handles = csvFile['Handle'].tolist()
     for profile in handles:
-        twitterEg = Twitter(consumer_key, consumer_secret, access_token, access_token_secret)
-        tweets = twitterEg.fetchTweets(profile, limit=10)
-        for tweet in tweets:
-            mongo.twitterCollection.insert(tweet.__dict__)
-        mongo.usersCollection.update({
-            'screen_name': tweet.screen_name
-        }, {
-            'screen_name': tweet.screen_name,
-            'follower_count': tweet.follower_count
-        }, True)
-    return redirect("/rank", code=200)
+        twitterGraph.add_candidate(profile, twitterFetch["max_followers"], 
+                                   twitterFetch["max_follower_friends"])
+    twitterGraph.load_pickle()
+    return "success"
 
-@app.route('/rank', methods=['GET', 'POST'])
+@app.route('/rank', methods=['GET'])
 def getRank():
-    elasticConfig = config['elasticsearch']
     topic_results = mongo.topicCollection.find()
     queries = [topic_result for topic_result in topic_results]
-    print(queries)
     filters = []
-    if request.method == 'POST':
-        filters = [request.form[key] for key in request.form.keys() if key != 'query']
-    screen_names = mongo.usersCollection.find()
-    sorted_rank = []
     pending_topics = []
     rank_list = []
     final_ranks = []
-    screened_tweets = []
-    
+    df = pd.read_csv("./handles.csv")
+    screen_names = df.values.tolist()
+
+    candidates = []
+
     for screen_name in screen_names:
-        result = mongo.twitterCollection.find({'screen_name': screen_name['screen_name']})
-        tweets = []
-        for res in result:
-            tweets.append(res)
-        screened_tweets.append({
-            'screen_name': screen_name['screen_name'],
-            'tweets': tweets
-        })
+        res = twitterGraph.fetch_user(screen_name[1])
+        candidates.append({'id': res.id, 
+                           'screen_name': screen_name[1],
+                           'name': screen_name[0],
+                        #    'topic_relevance': 0,
+                           'image_url': res.profile_image_url})
+
+    ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [
+                           candidate['id'] for candidate in candidates])
+    for i, rank in enumerate(ranks):
+        candidates[i] = dict(candidates[i], **rank)
+        candidates[i]["moiScore"] = moi.fetch_moi_score(candidates[i]['id'], twitterFetch["max_tweets"])
+    
+    ranking = Ranking(candidates, filters = ['influence', 'moiScore'])
+
+    weightages = {
+        'influence': 0.5,
+        'moiScore': 0.5
+    }
+    
+    ranking.rank(weightages)
+
+    influenceRanks = ranking.dataframe.to_dict(orient='records')[:5]
+    print("Influence ranks")
+    print(influenceRanks)
+    weightages = {
+        'influence': 0.125,
+        'moiScore': 0.125,
+        'topic_relevance': 0.75
+    }
     for query_dict in queries:
-        print("Query_dict is:")
-        print(query_dict)
+        topic_dist = 0
+        query = query_dict['name']
         if query_dict['isPresent'] == False:
             pending_topics.append(query_dict['name'])
-            continue
-        rankings = []
-        query = query_dict['name']
-        for screened_tweet in screened_tweets:
-            tweets = screened_tweet['tweets']
-            doc_topic_dist, sentiment = lsimodel.topicDist(tweets)
-            res = lsimodel.es.search(doc_type=elasticConfig['doc_type'], body={"query": {"match": {"content": query}}})
-            id = int(res['hits']['hits'][0]['_id'])
-            topic_relevance = doc_topic_dist[id]
-            ranking = Ranking(tweets, topic_relevance, sentiment)
-            if len(filters) != 0:
-                ranking.rank(filters)
-            else:
-                ranking.rank()
-            followerCountScore = screen_name['follower_count'] / 10000
-            relevantTweetsCount = len(ranking.dataframe[ranking.dataframe['topic_relevance'] > 0])
-            frequency = (relevantTweetsCount / len(ranking.dataframe)) * math.log(len(ranking.dataframe + 1))
-            temp = { 'name' : screened_tweet['screen_name'] , 'rank' : ranking.dataframe['rank'].mean() + followerCountScore + frequency}
-            rankings.append(temp)
-        rank_list = sorted(rankings, key=itemgetter('rank'), reverse=True)
-        rank_list = rank_list[:5]
-        for index, ele in enumerate(rank_list):
-            ele['rank'] = index + 1
+            for candidate in candidates:
+                candidate["topic_relevance"] = 0
+        else:
+            rankings = []
+            for candidate in candidates:
+                candidateTweets = twitterGraph.fetch_preprocessed_tweets(candidate['id'], twitterFetch["max_tweets"])
+                print(candidate["screen_name"])
+                candidate["topic_relevance"] = ldamodelInstance.getTopicDistFromQuery(candidateTweets, query)
+            
+        ranking = Ranking(candidates)
+        ranking.rank(weightages)
+        rank_list = ranking.dataframe.to_dict(orient='records')[:5]
+
         final_ranks.append({
             'query': query,
             'rank_list': rank_list
         })
-    
-    return render_template("form.html",final_ranks = final_ranks, pending_topics = pending_topics)
+    return render_template("form.html", final_ranks = final_ranks, 
+                            pending_topics = pending_topics, 
+                            influenceRanks=influenceRanks)
 
 @app.route('/rank/graphs')
 def graphs():
-    return render_template('graphs.html')
+    id = request.args.get('id')
+    name = request.args.get('name')
+    query = request.args.get('topic_name')
+    user = twitterGraph.fetch_user(id=id)
+    filters = [('Topic sensitive Influence', 'influence'), ('MOE', 'moiScore'), ('Topic Relevance', 'topic_relevance')]
+    try:
+        ranks = {}
+        for filter in filters:
+            ranks[filter[1]] = (filter[0], float(request.args.get(filter[1])) * 100)
+    except:
+        print("Influence")
+    ranks = sorted(ranks.items())
+    user.profile_image_url = re.sub(r'_normal', '', user.profile_image_url)
+    tweets, retweets = twitterGraph.fetch_favorites(user.id, twitterFetch['max_tweets'])
+    tweet_time_series, retweet_time_series = fetchTimeSeries(tweets, 'count'), fetchTimeSeries(retweets, 'count')
+    tweet_time_series, retweet_time_series = sorted(tweet_time_series['count'].items()), sorted(retweet_time_series['count'].items())
+    return render_template('graphs.html', tweet_time_series=tweet_time_series, 
+                            retweet_time_series=retweet_time_series,
+                            name=name,
+                            followers=user.followers_count,
+                            screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 
 @app.route('/login', methods = ["POST", "GET"])
 def login():
@@ -154,7 +178,6 @@ def login():
         login_user = user.find_one({ 'name' : request.form['username']})
 
         if login_user:
-            print(login_user)
             if bcrypt.hashpw(request.form["pwd"].encode('utf-8'), login_user["password"]) == login_user["password"]:
                 session['username'] = request.form['username']
                 redirect(url_for('success'))
@@ -175,6 +198,11 @@ def register():
         return "Username already exist" 
     
     return render_template('register.html')
+
+@app.route('/')
+def home():
+    return render_template("home.html")
+
 
 if __name__ == '__main__':
     app.secret_key = "mysecret"

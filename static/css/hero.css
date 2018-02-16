@@ -1,0 +1,34 @@
+header {
+    background: #000000 !important
+}
+
+.p-5 p {
+    text-align: justify;
+}
+
+.background-image {
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url("https://assets.entrepreneur.com/content/3x2/1300/20170926163842-GettyImages-543082622.jpeg");
+    background-size: cover;
+    opacity: 0.7;
+    filter: blur(2px);
+}
+
+section p {
+    font-size: 1.3rem !important;
+}
+
+.flexbox img {
+    margin: 0px 15px;
+    height: 250px;
+    width: 250px;
+}
+
+.flexbox {
+    display:  flex;
+    justify-content: center
+}

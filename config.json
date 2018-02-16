@@ -5,13 +5,25 @@
         "access_token": "420400261-Qknhgi9XaPv1ZklKdV68Ef4ZzbmjyPTFKynzW2WR",
         "access_token_secret": "B077y0aYdHAntBR0GKB84xHqkofTW2a99qb42iptprDwE"
     },
-    "topicModeling": {
-        "num_topics": 10
+    "twitterFetch": {
+        "max_followers": 15,
+        "max_tweets": 100,
+        "max_follower_friends": 10
+    },
+    "topic_modeling": {
+        "num_topics": 10,
+        "model_name": "ldamodel.pickle",
+        "num_article_topics": 10,
+        "num_iterations": 20,
+        "num_words": 10
     },
     "elasticsearch": {
         "host": "localhost",
         "port": 9200,
         "index": "lsi_topics",
         "doc_type": "lsi"
+    },
+    "newsapi": {
+        "api_key": "3fee702fe91748e8b8220095fcc4747a"
     }
 }

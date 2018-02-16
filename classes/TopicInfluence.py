@@ -23,9 +23,24 @@ class TopicInfluence:
             for (a, b) in topic:
                 self.twitterGraph.G.node[nodeId]['similarity'][a] = b
 
-    def compute_rank(self, max_tweets, center_nodes = [], gamma=1):
+    def compute_rank(self, max_tweets, center_nodes = [], gamma=1, force_fetch=False):
+        candidate_ranks = []
+        updated_center_nodes = list(center_nodes)
+        if force_fetch is False:
+            for center_node in center_nodes:
+                if 'influence' in self.twitterGraph.G.node[center_node]:
+                    candidate_ranks.append({
+                        'id': center_node,
+                        'influence': self.twitterGraph.G.node[center_node]['influence']
+                    })
+                    updated_center_nodes.remove(center_node)
+        if len(updated_center_nodes) == 0:
+            return candidate_ranks
+        center_nodes = updated_center_nodes
+        print("Length is not 0")
+        print(center_nodes)
         node_array = self.getNodeArray(center_nodes)
-        num_topics = config["topicModeling"]["num_topics"]
+        num_topics = config["topic_modeling"]["num_topics"]
         rank_vector_len = len(node_array)
         final_rank_vector = np.array([0 for a in range(0, rank_vector_len)])
         for topic_number in range(0, num_topics):
@@ -34,14 +49,18 @@ class TopicInfluence:
             for i in range(1, 10):
                 rank_vector = gamma * np.dot(probab_matrix, rank_vector)
             final_rank_vector = final_rank_vector + rank_vector
-        candidate_ranks = []
-        print(final_rank_vector)
         for center_node in center_nodes:
             index = node_array.index(center_node)
             candidate_ranks.append({
-                'node': center_node,
+                'id': center_node,
                 'influence': final_rank_vector[index]
             })
+            self.twitterGraph.G.node[center_node]['influence'] = final_rank_vector[index]
+        
+        self.twitterGraph.reset_prop('tweet_doc', [])
+        print("Refetched successfully")
+        self.twitterGraph.write_pickle()
+        self.twitterGraph.load_pickle()
         return candidate_ranks
 
     def getNodeArray(self, center_nodes=[]):
@@ -81,22 +100,6 @@ class TopicInfluence:
                     score = 0
                 probab_vector.append(score)
 
-            # neighSum = 0
-            # for (ownNode, neighbor) in self.twitterGraph.G.edges(node1):
-            #     neighSum = neighSum + self.twitterGraph.G.node[neighbor]['status_count']
-            # probab_vector = []
-            # for node2 in node_array:
-            #     if node1 == node2:
-            #         score = 1
-            #     elif node2 in center_nodes and self.twitterGraph.G.has_edge(node1, node2) and len(self.twitterGraph.G.node[node1]['tweet_doc']) != 0:
-            #         self.twitterGraph.set_model(node2, max_tweets, fetchTweetDoc=False)
-            #         self.calcSimilarity(node2)
-            #         self.calcSimilarity(node1)
-            #         print(self.twitterGraph.G.node[node2])
-            #         score = self.twitterGraph.G.node[node2]['status_count'] / neighSum * (1 - abs(self.twitterGraph.G.node[node1]['similarity'][topic_number] - self.twitterGraph.G.node[node2]['similarity'][topic_number]))
-            #     else:
-            #         score = 0
-            #     probab_vector.append(score)
             probab_matrix.append(probab_vector)
 
         return np.array(probab_matrix)

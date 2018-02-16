@@ -8,9 +8,8 @@ class MOI:
 
     def fetch_moi_score(self, screen_id, max_tweets):
         followers_count = self.twitterGraph.G.node[screen_id]['followers_count']
-        favourites, retweets = self.twitterGraph.fetch_favourites(screen_id, max_tweets)
-        favourites, retweets = np.array(favourites), np.array(retweets)
-        print(favourites, retweets, followers_count)
-        roa = (favourites + retweets) / followers_count
+        favorites, retweets = self.twitterGraph.fetch_favorites(screen_id, max_tweets)
+        favorites, retweets = np.array([favorite['count'] for favorite in favorites]), np.array([0 if retweet['isRetweet'] else retweet['count'] for retweet in retweets])
+        roa = (favorites + retweets) / followers_count
         moi = np.linalg.norm(roa, 2) / (math.sqrt(len(roa)))
         return moi

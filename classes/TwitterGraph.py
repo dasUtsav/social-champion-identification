@@ -5,6 +5,7 @@ from text_cleansing_step1 import Text_retrieve
 from Instances import twitterInstance
 from gensim.models import ldamodel
 from gensim import corpora
+from twitter import User, Tweet
 
 config = json.load(open("config.json", 'r'))
 
@@ -20,8 +21,11 @@ class TwitterGraph:
     def write_pickle(self):
         nx.write_gpickle(self.G, self.file_name)
     
-    def add_candidate(self, screen_name, max_followers, max_follower_friends):
-        res = twitterInstance.api.get_user(screen_name)
+    def add_candidate(self, screen_name, max_followers, max_follower_friends, force_fetch = False):
+        res = self.fetch_user(screen_name=screen_name)
+        if not force_fetch and res.id in self.G.nodes():
+            print("Candidate already exists")
+            return
         self.G.add_node(res.id, status_count = res.statuses_count, 
                         screen_name = res.screen_name, similarity={},
                         followers_count = res.followers_count,
@@ -31,7 +35,7 @@ class TwitterGraph:
         for user in users:
             if not user.id in self.G.nodes():
                 self.G.add_node(user.id, similarity = {})
-            self.G.add_node(user.id, status_count = user.status_count, 
+            self.G.add_node(user.id, status_count = user.statuses_count, 
                             screen_name = user.screen_name,
                             followers_count = user.followers_count,
                             isRetrieve = False)
@@ -46,24 +50,41 @@ class TwitterGraph:
                 if not friend.id in self.G.nodes():
                     self.G.add_node(friend.id, similarity = {})
                 self.G.add_node(friend.id, 
-                                status_count = friend.status_count, 
+                                status_count = friend.statuses_count, 
                                 screen_name = friend.screen_name,
                                 followers_count = user.followers_count,
                                 isRetrieve = False)
                 if not self.G.has_edge(user.id, friend.id):
                     self.G.add_edge(user.id, friend.id, retweets=0)
-
+        print("Successfully fetched", screen_name)
         self.write_pickle()
 
+    def fetch_preprocessed_tweets(self, screen_id, max_tweets):
+        tweets = self.fetch_tweets(screen_id, max_tweets)
+        text_retrieve = Text_retrieve(tweets)
+        tweet_doc = text_retrieve.lemmatize()
+        return tweet_doc
+    
     def fetch_tweets(self, screen_id, max_tweets):
         if self.G.node[screen_id]['isRetrieve'] == False:
             tweets = self.fetch_and_store(screen_id, max_tweets)
         else:
             tweets = mongo.twitterCollection.find({'user_id': screen_id})
             tweets = [tweet for tweet in tweets]
-        text_retrieve = Text_retrieve(tweets)
-        tweet_doc = text_retrieve.lemmatize()
-        return tweet_doc
+            tweets = tweets[:max_tweets]
+        return tweets
+
+    def fetch_user(self, screen_name=None, id=None):
+        assert (id is not None or screen_name is not None)
+        userMongo = mongo.usersCollection.find({'$or':[ {'screen_name':screen_name}, {'id':id}]})
+        if userMongo.count() == 0:
+            screen_name = screen_name if screen_name is not None else id
+            user = twitterInstance.fetchUser(screen_name)
+            mongo.usersCollection.insert(user.__dict__)
+        else:
+            user = [user for user in userMongo]
+            user = User(user[0])
+        return user
 
     def fetch_and_store(self, screen_id, max_tweets):
         tweets = twitterInstance.fetchTweets(screen_id, max_tweets)
@@ -73,26 +94,26 @@ class TwitterGraph:
         self.write_pickle()
         return tweets
 
-    def fetch_favourites(self, screen_id, max_tweets):
+    def fetch_favorites(self, screen_id, max_tweets):
         if self.G.node[screen_id]['isRetrieve'] == False:
             tweets = self.fetch_and_store(screen_id, max_tweets)
-            favourite_counts = [tweet.favourite_count for tweet in tweets]
-            retweet_counts = [tweet.retweet_count for tweet in tweets]
+            favorite_counts = [{'count': tweet.favorite_count, 'created_at': tweet.created_at} for tweet in tweets]
+            retweet_counts = [{'count': tweet.retweet_count, 'isRetweet': tweet.isRetweet, 'created_at': tweet.created_at} for tweet in tweets]
         else:
-            tweets = mongo.twitterCollection.find({'user_id': screen_id})
+            tweets = self.fetch_tweets(screen_id, max_tweets)
             tweets = [tweet for tweet in tweets]
-            favourite_counts = [tweet['favourite_count'] for tweet in tweets]
-            retweet_counts = [tweet['retweet_count'] for tweet in tweets]
-        return favourite_counts, retweet_counts
+            favorite_counts = [{'count': tweet['favorite_count'], 'created_at': tweet['created_at']} for tweet in tweets]
+            retweet_counts = [{'count': tweet['retweet_count'], 'created_at': tweet['created_at'], 'isRetweet': tweet['isRetweet']} for tweet in tweets]
+        return favorite_counts, retweet_counts
 
     def set_tweet_doc(self, screen_id, max_tweets):
-        tweet_doc = self.fetch_tweets(screen_id, max_tweets)
+        tweet_doc = self.fetch_preprocessed_tweets(screen_id, max_tweets)
         # self.G.node[screen_id]['tweet_doc'] = [word for tweet in tweet_doc for word in tweet]
         self.G.node[screen_id]['tweet_doc'] = tweet_doc
         return tweet_doc
 
     def set_model(self, screen_name, max_tweets, fetchTweetDoc=False):
-        res = twitterInstance.api.get_user(screen_name)
+        res = self.fetch_user(screen_name=screen_name)
         if fetchTweetDoc is True:
             tweet_doc = self.set_tweet_doc(res.id, max_tweets)
         else:   
@@ -102,7 +123,7 @@ class TwitterGraph:
     def createModel(self, doc):
         dictionary = corpora.Dictionary(doc)
         corpus = [dictionary.doc2bow(text) for text in doc]
-        model = ldamodel.LdaModel(corpus, num_topics=config["topicModeling"]["num_topics"], id2word = dictionary)
+        model = ldamodel.LdaModel(corpus, num_topics=config["topic_modeling"]["num_topics"], id2word = dictionary)
         return model, dictionary
 
     def reset_prop(self, prop, value):

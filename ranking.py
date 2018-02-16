@@ -1,39 +1,38 @@
 import pandas as pd
 import pickle
 import numpy as np
+from scipy.stats import percentileofscore
 
 class Ranking:
-    def __init__(self, documents, topic_relevance, sentiment):
-        self.dataframe = {}
-        self.dataframe['likes'] = [document['favourite_count'] for document in documents]
-        self.dataframe['retweets'] = [document['retweet_count'] for document in documents]
-        self.dataframe['isRetweet'] = [document['isRetweet'] for document in documents]
-        self.dataframe['urls'] = [len(document['urls']) for document in documents]
-        self.dataframe['hashtags'] = [len(document['hashtags']) for document in documents]
-        self.dataframe['topic_relevance'] = topic_relevance.values.tolist()
-        self.dataframe['sentiment'] = sentiment
-        self.dataframe = pd.DataFrame(self.dataframe)
-        nullValues = {'likes': 0, 'retweets': 0, 'isRetweet': 0, 'urls': 0,
-                      'hashtags': 0, 'topic_relevance': -1}
-        self.dataframe = self.dataframe.fillna(nullValues)
-        scalerColumns = ['likes', 'retweets']
-        with open('scaler.pickle', 'rb') as f:
-            scaler = pickle.load(f)
-        X_train_np = self.dataframe[scalerColumns].values
-        X_train_np = scaler.transform(X_train_np)
-        self.dataframe[scalerColumns] = X_train_np
-        self.maxweight = 2
-            
+    def __init__(self, ranks, filters = ['influence', 'moiScore', 'topic_relevance']):
+        self.filters = filters
+        self.dataframe = pd.DataFrame(ranks)
+        for filter in self.filters:
+            self.dataframe = self.normalize(self.dataframe, filter)
 
-    def rank(self, filters=['topic_relevance', 'hashtags', 'urls', 'sentiment', 'likes', 'retweets', 'isRetweet']):
-        weightages = {}
+    @staticmethod
+    def normalize(df, column):
+        max_vals = {
+            'influence': 1080,
+            'moiScore': 0.05,
+            'topic_relevance': 0.8
+        }
+        df = pd.DataFrame(df)
+        max = max_vals[column]
+        min = 0
+        print("Max", df[column].max())
+        if max == 0:
+            df[column] = 0
+        else:
+            df[column] = (df[column] - min) / (max - min)
+        return df
+
+    def rank(self, weightages):
         rank = []
-        for filter in filters:
-            weightages[filter] = self.maxweight
-            self.maxweight /= 2
-        weightages['isRetweet'] = -0.075
-        for filter in filters:
-            rank.append(weightages[filter] * self.dataframe[filter])
-        rank = np.asarray(rank)
-        rank = np.sum(rank, axis=0)
-        self.dataframe['rank'] = rank
+        self.dataframe['rank'] = 0
+        for filter in self.filters:
+            self.dataframe['rank'] += self.dataframe[filter] * weightages[filter]
+        self.dataframe = self.dataframe.sort_values(['rank'], ascending=0)
+        dataFrameList = self.dataframe['rank'].tolist()
+        self.percentileOfLast = percentileofscore(dataFrameList, dataFrameList[4])
+        print("last percentile", self.percentileOfLast)

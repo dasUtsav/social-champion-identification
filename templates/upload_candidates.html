@@ -74,25 +74,10 @@
                 data: new FormData($("#candidateForm")[0]),
                 processData: false, 
                 contentType: false,
-                xhr: function() {
-                    
-                    let xhrlistener = $.ajaxSettings.xhr();
-                    if (xhrlistener.upload) {
-                        xhrlistener.upload.addEventListener('progress', progress, false);
-                    }
-                    return xhrlistener;
-                },
                 success: function(returnval) {
                      window.location.replace("http://localhost:8000/rank")
                  }
             });
-
-            function progress(e) {
-                if(e.lengthComputable) {
-                    console.log(e.loaded);
-                    console.log(e.total);
-                }
-            }
         });
 </script>
 {% endblock %}

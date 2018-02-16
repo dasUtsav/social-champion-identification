@@ -1,6 +1,13 @@
 {% extends 'index.html' %}
 
-
+{% block head %}
+<style>
+    .list-flex {
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+{% endblock %}
 
 {% block body %}
 
@@ -32,11 +39,25 @@
 </div>
 
 <script>
-       
-        
+        interestIndex = 0;
+       function deleteQuery($context) {
+            listId = $context.path[2].id;
+            $(`#${listId}`).remove();
+       }
+
         $("#queryForm").submit((event) => {
+            interestIndex++;
             event.preventDefault()
-            $('#interest').append('<li class="list-group-item">'+ $('#query').val() + '</li>')
+            if ($('#query').val().length === 0)
+                return;
+            $('#interest').append(`
+                <li class="list-group-item list-flex" id="list-item-${interestIndex}">
+                    ${$('#query').val()}
+                    <button type="button" class="close" aria-label="Close" onclick="deleteQuery(event)">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </li>
+            `)
             $('#query').val("");
         });
 
@@ -45,7 +66,8 @@
             for (var i = 0; i < $('#interest li').length; i++) {
                 interest.push($('#interest li')[i].innerHTML)
             }
-            
+            if (interest.length === 0) 
+                return;
             $.redirect('http://localhost:8000/addtopics', interest);
         });
 </script>

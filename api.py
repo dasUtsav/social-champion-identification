@@ -68,16 +68,14 @@ def addTopics():
             
 @app.route('/addprofile', methods=['POST'])
 def addProfile():
-    if 'handles' not in request.files:
-        flash('No handles part')
-        return redirect(request.url)
+    print(request.files)
     csvFile = pd.read_csv(request.files['handles'])
     handles = csvFile['Handle'].tolist()
     for profile in handles:
         twitterGraph.add_candidate(profile, twitterFetch["max_followers"], 
                                    twitterFetch["max_follower_friends"])
     twitterGraph.load_pickle()
-    return redirect("/rank", code=200)
+    return "success"
 
 @app.route('/rank', methods=['GET'])
 def getRank():

@@ -1,17 +1,98 @@
 {% extends 'index.html' %}
+{% block head %}
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spinner.css') }}">
+
+<style>
+    body {
+        height: 100vh;
+    }
+    .blackbox-parent, .blackbox {
+        height: 100%;
+    }
+    .blackbox-parent {
+        position: absolute;
+        width: 100%;
+        visibility: hidden;
+    }
+
+    .blackbox {
+        background-color: black;
+        position: absolute;
+        width: 100%;
+        opacity: 0.6;
+        transition: opacity 0.2s ease-in;
+    }
+    .visible-blackbox {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+
+{% endblock %}
+{% block content %}
+<div class="blackbox-parent" id="loadingParent">
+    <div class="blackbox">
+        
+    </div>
+    <div class="sk-cube-grid">
+        <div class="sk-cube sk-cube1"></div>
+        <div class="sk-cube sk-cube2"></div>
+        <div class="sk-cube sk-cube3"></div>
+        <div class="sk-cube sk-cube4"></div>
+        <div class="sk-cube sk-cube5"></div>
+        <div class="sk-cube sk-cube6"></div>
+        <div class="sk-cube sk-cube7"></div>
+        <div class="sk-cube sk-cube8"></div>
+        <div class="sk-cube sk-cube9"></div>
+    </div>
+</div>
+
+
+
+{% endblock %}
 {% block body %}
+
 
 <div class="container">
         <h2 class="text-center">Upload a csv file containing name and twitter_handle</h2>
         <br>
-        <form class="form-group jumbotron" action="http://localhost:8000/addprofile" method="POST"
+        <form class="form-group jumbotron" id="candidateForm" action="http://localhost:8000/addprofile" method="POST"
         enctype = "multipart/form-data">
-            <input type="file" class="form-control" name="handles" accept=".csv">
+            <input type="file" id="csvForm" class="form-control" name="handles" accept=".csv">
             <input type="submit" class="btn btn-primary">
         </form>
-    
-
 </div>
 
+<script>
+        $("#candidateForm").submit((event) => {
+            event.preventDefault()
+            $("#loadingParent").addClass("visible-blackbox");
+            $.ajax({
+                type: 'POST',
+                url:"/addprofile",
+                data: new FormData($("#candidateForm")[0]),
+                processData: false, 
+                contentType: false,
+                xhr: function() {
+                    
+                    let xhrlistener = $.ajaxSettings.xhr();
+                    if (xhrlistener.upload) {
+                        xhrlistener.upload.addEventListener('progress', progress, false);
+                    }
+                    return xhrlistener;
+                },
+                success: function(returnval) {
+                     window.location.replace("http://localhost:8000/rank")
+                 }
+            });
+
+            function progress(e) {
+                if(e.lengthComputable) {
+                    console.log(e.loaded);
+                    console.log(e.total);
+                }
+            }
+        });
+</script>
 {% endblock %}

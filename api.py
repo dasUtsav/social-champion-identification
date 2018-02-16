@@ -97,7 +97,7 @@ def getRank():
         candidates.append({'id': res.id, 
                            'screen_name': screen_name[1],
                            'name': screen_name[0],
-                           'topic_relevance': 0,
+                        #    'topic_relevance': 0,
                            'image_url': res.profile_image_url})
 
     ranks = topicInfluence.compute_rank(twitterFetch["max_tweets"], [
@@ -156,11 +156,17 @@ def graphs():
     name = request.args.get('name')
     query = request.args.get('topic_name')
     user = twitterGraph.fetch_user(id=id)
-    ranks = {
-        'influence': float(request.args.get('influence')) * 100,
-        'moiScore': float(request.args.get('moiScore')) * 100,
-        'topic_relevance': float(request.args.get('topic_relevance')) * 100,
-    }
+    try:
+        ranks = {
+            'influence': float(request.args.get('influence')) * 100,
+            'moiScore': float(request.args.get('moiScore')) * 100,
+            'topic_relevance': float(request.args.get('topic_relevance')) * 100,
+        }
+    except:
+        ranks = {
+            'influence': float(request.args.get('influence')) * 100,
+            'moiScore': float(request.args.get('moiScore')) * 100
+        }
     ranks = sorted(ranks.items())
     user.profile_image_url = re.sub(r'_normal', '', user.profile_image_url)
 

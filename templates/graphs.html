@@ -15,12 +15,15 @@
             <canvas id="myChart" width="400"></canvas>
         </div>
     </div>
-    <div class="graphs">
-        <h2>Likes over time</h2>
-        <canvas id="SeriesTweet" width="400"></canvas>
-        <h2>Retweets over time</h2>
-        <canvas id="SeriesFav" width="400"></canvas>
+    <div class="graphs-parent">
+        <div class="graphs">
+            <h2>Likes over time</h2>
+            <canvas id="SeriesTweet" width="400"></canvas>
+            <h2>Retweets over time</h2>
+            <canvas id="SeriesFav" width="400"></canvas>
+        </div>
     </div>
+
 
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
@@ -39,7 +42,7 @@
     var myChart = new Chart(ctx, {
         type: 'horizontalBar',
         data: {
-            labels: ["Influence", "MOI", "Topic Relevance"],
+            labels: [{% for key, value in stats %}"{{ key }}",{% endfor %}],
             datasets: [{
                 label: 'Score',
                 data: [{% for key, value in stats %}

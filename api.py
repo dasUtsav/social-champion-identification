@@ -155,7 +155,7 @@ def graphs():
     name = request.args.get('name')
     query = request.args.get('topic_name')
     user = twitterGraph.fetch_user(id=id)
-    filters = [('Topic sensitive Influence', 'influence'), ('MOI', 'moiScore'), ('Topic Relevance', 'topic_relevance')]
+    filters = [('Topic sensitive Influence', 'influence'), ('MOE', 'moiScore'), ('Topic Relevance', 'topic_relevance')]
     try:
         ranks = {}
         for filter in filters:
@@ -170,6 +170,7 @@ def graphs():
     return render_template('graphs.html', tweet_time_series=tweet_time_series, 
                             retweet_time_series=retweet_time_series,
                             name=name,
+                            followers=user.followers_count,
                             screen_name=user.screen_name, image_url=user.profile_image_url, topic_name=query, stats=ranks)
 
 @app.route('/login', methods = ["POST", "GET"])
